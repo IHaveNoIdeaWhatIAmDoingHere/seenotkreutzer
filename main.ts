@@ -55,26 +55,26 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     }
     if (finderOn == 0) {
         finderOn = 1
-        finder = sprites.create(assets.image`finder0`, SpriteKind.finder)
-        finder.setFlag(SpriteFlag.GhostThroughWalls, true)
-        finder.setFlag(SpriteFlag.GhostThroughSprites, true)
-        finder.setPosition(Cruiser.x, Cruiser.y)
-        finder.setStayInScreen(true)
+        finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
+        finder2.setFlag(SpriteFlag.GhostThroughWalls, true)
+        finder2.setFlag(SpriteFlag.GhostThroughSprites, true)
+        finder2.setPosition(Cruiser.x, Cruiser.y)
+        finder2.setStayInScreen(true)
         if (CountBurningShips >= 1) {
-            finder.follow(BurnShip, 300)
+            finder2.follow(BurnShip, 300)
         } else {
             if (Math.percentChance(50) && CountSwimmers > 0) {
-                finder.follow(swimmer1, 300)
+                finder2.follow(swimmer1, 300)
             } else if (CountRafts > 0) {
-                finder.follow(RAFT1, 300)
+                finder2.follow(RAFT1, 300)
             } else {
                 finderOn = 0
-                finder.destroy()
+                finder2.destroy()
             }
         }
     } else {
         finderOn = 0
-        finder.destroy()
+        finder2.destroy()
     }
 })
 function PlaceOnTopRandom (mySprite: Sprite) {
@@ -143,25 +143,6 @@ sprites.onDestroyed(SpriteKind.raft, function (sprite) {
 scene.onHitWall(SpriteKind.ship, function (sprite, location) {
     RandNewSpeed(sprite, 7, 20)
 })
-function play_sos (num: number) {
-    for (let index = 0; index < num; index++) {
-        beep = 1600
-        music.setTempo(180)
-        for (let index = 0; index < 3; index++) {
-            music.playTone(beep, music.beat(BeatFraction.Eighth))
-            music.rest(music.beat(BeatFraction.Quarter))
-        }
-        for (let index = 0; index < 3; index++) {
-            music.playTone(beep, music.beat(BeatFraction.Whole))
-            music.rest(music.beat(BeatFraction.Quarter))
-        }
-        for (let index = 0; index < 3; index++) {
-            music.playTone(beep, music.beat(BeatFraction.Eighth))
-            music.rest(music.beat(BeatFraction.Quarter))
-        }
-        music.rest(music.beat(BeatFraction.Double))
-    }
-}
 scene.onHitWall(SpriteKind.burningShip, function (sprite, location) {
     RandNewSpeed(sprite, 1, 3)
 })
@@ -169,7 +150,7 @@ function rescue () {
     effects.clearParticles(Cruiser)
     if (finderOn == 1) {
         finderOn = 0
-        finder.destroy()
+        finder2.destroy()
     }
     music.powerUp.play()
     Cruiser.say("Gerettet!", 1000)
@@ -179,7 +160,7 @@ function rescue () {
         controller.moveSprite(Cruiser, maxCruiserSpeed, maxCruiserSpeed)
         Cruiser.say("wir brauchen einen Hubschrauber!", 2000)
         pause(1500)
-        hospital = sprites.create(img`
+        hospital2 = sprites.create(img`
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
@@ -197,8 +178,8 @@ function rescue () {
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
             `, SpriteKind.hospital)
-        tiles.placeOnRandomTile(hospital, assets.tile`hospital2`)
-        chopper = sprites.create(img`
+        tiles.placeOnRandomTile(hospital2, assets.tile`hospital2`)
+        chopper2 = sprites.create(img`
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
@@ -217,7 +198,7 @@ function rescue () {
             . . . . . . . . . . . . . . . . 
             `, SpriteKind.chopper)
         animation.runImageAnimation(
-        chopper,
+        chopper2,
         [img`
             . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . . . . . . 
@@ -273,11 +254,11 @@ function rescue () {
         50,
         true
         )
-        chopper.setFlag(SpriteFlag.GhostThroughWalls, true)
-        tiles.placeOnRandomTile(chopper, assets.tile`myTile`)
-        scene.cameraFollowSprite(chopper)
+        chopper2.setFlag(SpriteFlag.GhostThroughWalls, true)
+        tiles.placeOnRandomTile(chopper2, assets.tile`myTile`)
+        scene.cameraFollowSprite(chopper2)
         pause(750)
-        chopper.follow(Cruiser, 250)
+        chopper2.follow(Cruiser, 250)
     }
 }
 function RotateCruiser () {
@@ -323,6 +304,25 @@ sprites.onOverlap(SpriteKind.ship, SpriteKind.ship, function (sprite, otherSprit
         Create_Burning_Ship()
     }
 })
+function play_sos (num: number) {
+    for (let index = 0; index < num; index++) {
+        beep = 1600
+        music.setTempo(180)
+        for (let index = 0; index < 3; index++) {
+            music.playTone(beep, music.beat(BeatFraction.Eighth))
+            music.rest(music.beat(BeatFraction.Quarter))
+        }
+        for (let index = 0; index < 3; index++) {
+            music.playTone(beep, music.beat(BeatFraction.Whole))
+            music.rest(music.beat(BeatFraction.Quarter))
+        }
+        for (let index = 0; index < 3; index++) {
+            music.playTone(beep, music.beat(BeatFraction.Eighth))
+            music.rest(music.beat(BeatFraction.Quarter))
+        }
+        music.rest(music.beat(BeatFraction.Double))
+    }
+}
 sprites.onOverlap(SpriteKind.Player, SpriteKind.raft, function (sprite, otherSprite) {
     info.changeScoreBy(5)
     otherSprite.destroy()
@@ -336,7 +336,7 @@ controller.A.onEvent(ControllerButtonEvent.Released, function () {
     	
     } else {
         finderOn = 0
-        finder.destroy()
+        finder2.destroy()
     }
 })
 function Create_Burning_Ship () {
@@ -375,14 +375,14 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.treassure, function (sprite, oth
     CountTressure += -1
 })
 sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite, otherSprite) {
-    chopper.say("Hochziehen!", 1200)
+    chopper2.say("Hochziehen!", 1200)
     pause(1200)
-    chopper.follow(hospital, 250)
+    chopper2.follow(hospital2, 250)
     pause(3000)
     scene.cameraFollowSprite(Cruiser)
     maxCruiserSpeed = 100
-    hospital.destroy()
-    chopper.destroy()
+    hospital2.destroy()
+    chopper2.destroy()
     if (Math.percentChance(50)) {
         info.changeScoreBy(33)
         music.magicWand.play()
@@ -573,9 +573,9 @@ let RandNewSpeedY = 0
 let RandNewSpeedX = 0
 let RandNewSpeddMax = 0
 let oldSpeedX = 0
-let chopper: Sprite = null
-let hospital: Sprite = null
 let beep = 0
+let chopper2: Sprite = null
+let hospital2: Sprite = null
 let Water: Sprite = null
 let WaterX = 0
 let WaterY = 0
@@ -583,7 +583,7 @@ let CruiserOrientation = 0
 let RAFT1: Sprite = null
 let swimmer1: Sprite = null
 let BurnShip: Sprite = null
-let finder: Sprite = null
+let finder2: Sprite = null
 let finderOn = 0
 let CountBurningShips = 0
 let CountSwimmers = 0
