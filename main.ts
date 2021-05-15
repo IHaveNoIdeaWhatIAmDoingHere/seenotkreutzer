@@ -500,7 +500,7 @@ blockMenu.onMenuOptionSelected(function (option, index) {
 })
 function SelectShip (mySprite: Sprite) {
     mySprite.vx = -1
-    SelectSHip = randint(0, 7)
+    SelectSHip = randint(0, 8)
     if (SelectSHip == 0) {
         mySprite.setImage(img`
             . . . . . . . . . . . . . . . . . . 
@@ -639,6 +639,20 @@ function SelectShip (mySprite: Sprite) {
             ....eeefeefeefeefeefeee.
             .....eeeeeeeeeeeeeeeee..
             .......eeeeeeeeeeeeee...
+            `)
+    }
+    if (SelectSHip == 8) {
+        mySprite.setImage(img`
+            . . . . . . . . . . . . b . 
+            . . . . . . . . . . . b . . 
+            . . . . . . . . . . b . . . 
+            . . . . . d d . . b . . . . 
+            . . . . . d d . . b . . . . 
+            . . . . . 4 4 d b . . . . . 
+            . . . . . 4 4 . b . . . . . 
+            7 e e e e e e e e e e e e 7 
+            . 7 7 7 7 7 7 7 7 7 7 7 7 . 
+            . . 7 7 7 7 7 7 7 7 7 7 7 . 
             `)
     }
 }
