@@ -500,7 +500,7 @@ blockMenu.onMenuOptionSelected(function (option, index) {
 })
 function SelectShip (mySprite: Sprite) {
     mySprite.vx = -1
-    SelectSHip = randint(0, 5)
+    SelectSHip = randint(0, 7)
     if (SelectSHip == 0) {
         mySprite.setImage(img`
             . . . . . . . . . . . . . . . . . . 
@@ -568,37 +568,77 @@ function SelectShip (mySprite: Sprite) {
     }
     if (SelectSHip == 4) {
         mySprite.setImage(img`
-            .............b..........
-            ............b...........
-            ..........ddd...........
-            ....6616161616..........
-            ....11111111111.........
-            ....61616161616.........
-            ...111111111111.........
-            ...616161616161616161...
-            ..11111111111111111111..
-            ..61616161616161616161..
-            .1111111111111111111111.
-            .6161616161616161616161.
-            ffffffffffffffffffffffff
-            .fffffffffffffffffffffff
-            ..ffffffffffffffffffffff
-            ...fffffffffffffffffffff
+            .............b..............
+            ............b...............
+            ..........ddd...............
+            ....6616161616..............
+            ....111111111111............
+            ....616161616161............
+            ...1111111111111111111111...
+            ...616161616161616161616161.
+            ..1111111111111111111111111.
+            ..6161616161616161616161616.
+            .111111111111111111111111111
+            .616161616161616161616161616
+            ffffffffffffffffffffffffffff
+            .fffffffffffffffffffffffffff
+            ..ffffffffffffffffffffffffff
+            ...fffffffffffffffffffffffff
             `)
     }
     if (SelectSHip == 5) {
         mySprite.setImage(img`
-            . . . d . . . . . . . 
-            . . d d d d . . . . . 
-            . . d d d d . . . . . 
-            . . d d d d d . . . . 
-            . . d d d d d d . . . 
-            . . d d d d d d . . . 
-            . . d d d d d d . . . 
-            . . d . . . . . . e e 
-            6 6 6 6 6 6 6 6 6 6 e 
-            . 6 4 4 6 6 6 6 6 6 e 
-            . . 6 6 6 6 6 6 6 6 . 
+            . . . . d . . . . . . . . 
+            . . . d d d d . . . . . . 
+            . . . d d d d . . . . . . 
+            . . . d d d d d . . . . . 
+            . . . d d d d d d . . . . 
+            . . . d d d d d d . . . . 
+            . . . d d d d d d . . . . 
+            . . . d . . . . . . e e . 
+            8 6 6 6 6 6 6 6 6 6 6 e . 
+            . 8 6 4 4 4 6 6 6 6 6 e . 
+            . . 8 6 6 6 6 6 6 6 6 8 . 
+            . . . 8 8 8 8 8 8 8 8 8 . 
+            `)
+    }
+    if (SelectSHip == 6) {
+        mySprite.setImage(img`
+            . . . . . . . d 2 7 . . . . 
+            . . . . . . 1 d 1 . . . . . 
+            . . . . . . 1 d 1 1 . . . . 
+            . . . . . 1 1 d 1 1 . . . . 
+            . . . . 1 1 1 d 1 1 1 . . . 
+            . . . . 1 1 1 d 1 1 1 . . . 
+            . . . 1 1 1 1 d 1 1 1 1 . . 
+            . . . 1 1 1 1 d 1 1 1 1 . . 
+            . . 1 1 1 1 1 d 1 1 1 1 1 . 
+            . 1 1 1 1 1 1 d 1 1 1 1 1 1 
+            . 1 1 1 1 1 1 d 1 1 1 1 1 1 
+            1 . . . . . . d . . . . . . 
+            7 e 7 e 7 e 7 e 7 e 7 e 7 e 
+            . 7 e 7 e 7 e 7 e 7 e 7 e 7 
+            . . 7 e 7 e 7 e 7 e 7 e 7 e 
+            `)
+    }
+    if (SelectSHip == 7) {
+        mySprite.setImage(img`
+            ..........1f5..1f2......
+            .....1f7.11f..11f..1fa..
+            ....11f.111f.111f.11f...
+            ....11f.111f.111f.11f1..
+            ...111f.111f.111f.11f11.
+            ...111f.111f.111f.11f11.
+            ..1111f.111f.111f.11f111
+            ..1111f.111f.111f.11f111
+            .11111f..11f..11f.11f111
+            .11111f...1f...1f..1f111
+            1.....f....f....f...f...
+            ffffffffffffffffffffffff
+            ..eeeeeeeeeeeeeeeeeeeeee
+            ....eeefeefeefeefeefeee.
+            .....eeeeeeeeeeeeeeeee..
+            .......eeeeeeeeeeeeee...
             `)
     }
 }
