@@ -8,7 +8,8 @@
         "arcade-minimap": "github:microsoft/arcade-minimap#v0.6.1",
         "radio": "*",
         "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.1",
-        "darts": "*"
+        "darts": "*",
+        "block-menu": "github:riknoll/arcade-custom-menu#v0.0.1"
     },
     "files": [
         "main.blocks",

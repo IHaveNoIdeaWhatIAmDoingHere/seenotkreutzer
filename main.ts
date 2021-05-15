@@ -50,31 +50,33 @@ scene.onHitWall(SpriteKind.swimmer, function (sprite, location) {
     RandNewSpeed(sprite, 1, 1)
 })
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (controller.A.isPressed()) {
-        game.showLongText("Ships: " + CountShips + " Rafts: " + CountRafts + " Swimmers: " + CountSwimmers + " Burners: " + CountBurningShips + " Treasure: " + CountTressure + " Time:" + Math.round(game.runtime() / 1000) + " Fuel :" + statusbar.value, DialogLayout.Bottom)
-    }
-    if (finderOn == 0) {
-        finderOn = 1
-        finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
-        finder2.setFlag(SpriteFlag.GhostThroughWalls, true)
-        finder2.setFlag(SpriteFlag.GhostThroughSprites, true)
-        finder2.setPosition(Cruiser.x, Cruiser.y)
-        finder2.setStayInScreen(true)
-        if (CountBurningShips >= 1) {
-            finder2.follow(BurnShip, 300)
-        } else {
-            if (Math.percentChance(50) && CountSwimmers > 0) {
-                finder2.follow(swimmer1, 300)
-            } else if (CountRafts > 0) {
-                finder2.follow(RAFT1, 300)
-            } else {
-                finderOn = 0
-                finder2.destroy()
-            }
+    if (GameInitDone == 1) {
+        if (controller.A.isPressed()) {
+            game.showLongText("Ships: " + CountShips + " Rafts: " + CountRafts + " Swimmers: " + CountSwimmers + " Burners: " + CountBurningShips + " Treasure: " + CountTressure + " Time:" + Math.round(game.runtime() / 1000) + " Fuel :" + statusbar.value, DialogLayout.Bottom)
         }
-    } else {
-        finderOn = 0
-        finder2.destroy()
+        if (finderOn == 0) {
+            finderOn = 1
+            finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
+            finder2.setFlag(SpriteFlag.GhostThroughWalls, true)
+            finder2.setFlag(SpriteFlag.GhostThroughSprites, true)
+            finder2.setPosition(Cruiser.x, Cruiser.y)
+            finder2.setStayInScreen(true)
+            if (CountBurningShips >= 1) {
+                finder2.follow(BurnShip, 300)
+            } else {
+                if (Math.percentChance(50) && CountSwimmers > 0) {
+                    finder2.follow(swimmer1, 300)
+                } else if (CountRafts > 0) {
+                    finder2.follow(RAFT1, 300)
+                } else {
+                    finderOn = 0
+                    finder2.destroy()
+                }
+            }
+        } else {
+            finderOn = 0
+            finder2.destroy()
+        }
     }
 })
 function PlaceOnTopRandom (mySprite: Sprite) {
@@ -88,44 +90,46 @@ scene.onHitWall(SpriteKind.raft, function (sprite, location) {
     RandNewSpeed(sprite, 3, 8)
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (maxCruiserSpeed != 0) {
-        maxCruiserSpeed = 250
+    if (GameInitDone == 1) {
+        if (maxCruiserSpeed != 0) {
+            maxCruiserSpeed = 250
+        }
+        if (CruiserOrientation == 0) {
+            WaterY = -80
+            WaterX = 0
+        }
+        if (CruiserOrientation == 180) {
+            WaterY = 80
+            WaterX = 0
+        }
+        if (CruiserOrientation == 90) {
+            WaterY = 0
+            WaterX = 80
+        }
+        if (CruiserOrientation == 270) {
+            WaterY = 0
+            WaterX = -80
+        }
+        Water = sprites.createProjectileFromSprite(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . 1 . . . . . . . . . 
+            . . . . . 8 9 8 9 . . . . . . . 
+            . . . . 1 9 8 9 8 . . . . . . . 
+            . . . . . 8 9 8 9 1 . . . . . . 
+            . . . . . 9 8 9 8 . . . . . . . 
+            . . . . . . . 1 . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            `, Cruiser, WaterX + randint(-20, 20), WaterY + randint(-20, 20))
+        Water.setFlag(SpriteFlag.GhostThroughWalls, true)
     }
-    if (CruiserOrientation == 0) {
-        WaterY = -80
-        WaterX = 0
-    }
-    if (CruiserOrientation == 180) {
-        WaterY = 80
-        WaterX = 0
-    }
-    if (CruiserOrientation == 90) {
-        WaterY = 0
-        WaterX = 80
-    }
-    if (CruiserOrientation == 270) {
-        WaterY = 0
-        WaterX = -80
-    }
-    Water = sprites.createProjectileFromSprite(img`
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . 1 . . . . . . . . . 
-        . . . . . 8 9 8 9 . . . . . . . 
-        . . . . 1 9 8 9 8 . . . . . . . 
-        . . . . . 8 9 8 9 1 . . . . . . 
-        . . . . . 9 8 9 8 . . . . . . . 
-        . . . . . . . 1 . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        `, Cruiser, WaterX + randint(-20, 20), WaterY + randint(-20, 20))
-    Water.setFlag(SpriteFlag.GhostThroughWalls, true)
 })
 sprites.onDestroyed(SpriteKind.swimmer, function (sprite) {
     CountSwimmers += -1
@@ -339,6 +343,26 @@ controller.A.onEvent(ControllerButtonEvent.Released, function () {
         finder2.destroy()
     }
 })
+function initGame () {
+    blockMenu.setControlsEnabled(false)
+    if (GameInitDone == 0) {
+        game.showLongText("Hallo Seenotretter, in deinem Revier sind viele Schiffe unterwegs, fahre auf Patrouille und halte Ausschau vor allem nach Rettungsinseln und im Wasser treibenden Personen! Pass auf, dass du keine anderen Schiffe Rammst.      Gute Wache! ", DialogLayout.Full)
+        maxCruiserSpeed = 100
+        Cruiser = sprites.create(assets.image`boat2`, SpriteKind.Player)
+        tiles.placeOnRandomTile(Cruiser, assets.tile`myTile0`)
+        scene.cameraFollowSprite(Cruiser)
+        info.setLife(3)
+        info.setScore(0)
+        statusbar = statusbars.create(60, 5, StatusBarKind.Fuel)
+        statusbar.positionDirection(CollisionDirection.Top)
+        statusbar.setOffsetPadding(0, 0)
+        statusbar.setBarBorder(1, 13)
+        statusbar.setColor(7, 2)
+        statusbar.max = 5000
+        statusbar.value = statusbar.max
+        GameInitDone = 1
+    }
+}
 function Create_Burning_Ship () {
     BurnShip = sprites.create(img`
         . . . . . . . . . . . . . . . . 
@@ -462,6 +486,18 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite, otherSpr
     pause(5000)
     otherSprite.setFlag(SpriteFlag.GhostThroughSprites, false)
 })
+blockMenu.onMenuOptionSelected(function (option, index) {
+    if (index == 0) {
+        tiles.setTilemap(tilemap`Level1`)
+        blockMenu.closeMenu()
+        initGame()
+    }
+    if (index == 1) {
+        tiles.setTilemap(tilemap`Karte2`)
+        blockMenu.closeMenu()
+        initGame()
+    }
+})
 function SelectShip (mySprite: Sprite) {
     mySprite.vx = -1
     SelectSHip = randint(0, 5)
@@ -580,20 +616,23 @@ let Water: Sprite = null
 let WaterX = 0
 let WaterY = 0
 let CruiserOrientation = 0
+let maxCruiserSpeed = 0
 let RAFT1: Sprite = null
 let swimmer1: Sprite = null
 let BurnShip: Sprite = null
+let Cruiser: Sprite = null
 let finder2: Sprite = null
 let finderOn = 0
 let CountBurningShips = 0
 let CountSwimmers = 0
 let CountRafts = 0
 let CountShips = 0
+let statusbar: StatusBarSprite = null
 let Treassure: Sprite = null
 let CountTressure = 0
-let statusbar: StatusBarSprite = null
-let Cruiser: Sprite = null
-let maxCruiserSpeed = 0
+let GameInitDone = 0
+blockMenu.setControlsEnabled(false)
+GameInitDone = 0
 music.setVolume(80)
 game.splash("für Alfred", "                                   von Papa                                   ")
 scene.setBackgroundImage(img`
@@ -719,85 +758,77 @@ scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     `)
 play_sos(2)
-game.showLongText("Hallo Seenotretter, in deinem Revier sind viele Schiffe unterwegs, fahre auf Patrouille und halte Ausschau vor allem nach Rettungsinseln und im Wasser treibenden Personen! Pass auf, dass du keine anderen Schiffe Rammst.      Gute Wache! ", DialogLayout.Full)
-maxCruiserSpeed = 100
-Cruiser = sprites.create(assets.image`boat2`, SpriteKind.Player)
-tiles.setTilemap(tilemap`Level1`)
-tiles.placeOnRandomTile(Cruiser, assets.tile`myTile0`)
-scene.cameraFollowSprite(Cruiser)
-info.setLife(3)
-info.setScore(0)
-statusbar = statusbars.create(60, 5, StatusBarKind.Fuel)
-statusbar.positionDirection(CollisionDirection.Top)
-statusbar.setOffsetPadding(0, 0)
-statusbar.setBarBorder(1, 13)
-statusbar.setColor(7, 2)
-statusbar.max = 5000
-statusbar.value = statusbar.max
+blockMenu.setColors(1, 15)
+blockMenu.showMenu(["Karte 1", "Karte 2"], MenuStyle.List, MenuLocation.FullScreen)
+blockMenu.setControlsEnabled(true)
 game.onUpdateInterval(1000, function () {
-    if (CountRafts < 3) {
-        RAFT1 = sprites.create(assets.image`raft`, SpriteKind.raft)
-        PlaceOnTopRandom(RAFT1)
-        CountRafts += 1
-        RandNewSpeed(RAFT1, 1, 8)
-    }
-    if (CountSwimmers < 3) {
-        swimmer1 = sprites.create(img`
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . e . . . . . . . . 
-            . . . . d . . d . . d . . . . . 
-            . . . . . d 4 4 4 d . . . . . . 
-            . . . . . . 4 4 4 . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            . . . . . . . . . . . . . . . . 
-            `, SpriteKind.swimmer)
-        PlaceOnTopRandom(swimmer1)
-        CountSwimmers += 1
-        RandNewSpeed(swimmer1, 1, 1)
-    }
-    if (CountShips < 6 && CountRafts <= 3) {
-        if (CountBurningShips == 0) {
-            Create_Burning_Ship()
-        } else {
-            Schiff1 = sprites.create(img`
-                . . . . . . . . . . . . . . . . 
-                . . . . . 5 5 5 5 5 5 . . . . . 
-                . . . . 5 5 . . . . 5 . . . . . 
-                . . . . 5 . . . . . . . . . . . 
-                . . . . 5 . . . . . . . . . . . 
-                . . . . 5 5 . . . . . . . . . . 
-                . . . . . 5 5 5 5 5 . . . . . . 
-                . . . . . . . . . 5 . . . . . . 
-                . . . . . . . . . 5 5 . . . . . 
-                . . . . 5 . . . . 5 5 . . . . . 
-                . . . . 5 5 5 5 5 5 . . . . . . 
-                . . . . . 5 5 . . . . . . . . . 
+    if (GameInitDone == 1) {
+        if (CountRafts < 3) {
+            RAFT1 = sprites.create(assets.image`raft`, SpriteKind.raft)
+            PlaceOnTopRandom(RAFT1)
+            CountRafts += 1
+            RandNewSpeed(RAFT1, 1, 8)
+        }
+        if (CountSwimmers < 3) {
+            swimmer1 = sprites.create(img`
                 . . . . . . . . . . . . . . . . 
                 . . . . . . . . . . . . . . . . 
                 . . . . . . . . . . . . . . . . 
                 . . . . . . . . . . . . . . . . 
-                `, SpriteKind.ship)
-            SelectShip(Schiff1)
-            PlaceOnTopRandom(Schiff1)
-            CountShips += 1
-            RandNewSpeed(Schiff1, 8, 20)
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . e . . . . . . . . 
+                . . . . d . . d . . d . . . . . 
+                . . . . . d 4 4 4 d . . . . . . 
+                . . . . . . 4 4 4 . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                `, SpriteKind.swimmer)
+            PlaceOnTopRandom(swimmer1)
+            CountSwimmers += 1
+            RandNewSpeed(swimmer1, 1, 1)
+        }
+        if (CountShips < 6 && CountRafts <= 3) {
+            if (CountBurningShips == 0) {
+                Create_Burning_Ship()
+            } else {
+                Schiff1 = sprites.create(img`
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . 5 5 5 5 5 5 . . . . . 
+                    . . . . 5 5 . . . . 5 . . . . . 
+                    . . . . 5 . . . . . . . . . . . 
+                    . . . . 5 . . . . . . . . . . . 
+                    . . . . 5 5 . . . . . . . . . . 
+                    . . . . . 5 5 5 5 5 . . . . . . 
+                    . . . . . . . . . 5 . . . . . . 
+                    . . . . . . . . . 5 5 . . . . . 
+                    . . . . 5 . . . . 5 5 . . . . . 
+                    . . . . 5 5 5 5 5 5 . . . . . . 
+                    . . . . . 5 5 . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    `, SpriteKind.ship)
+                SelectShip(Schiff1)
+                PlaceOnTopRandom(Schiff1)
+                CountShips += 1
+                RandNewSpeed(Schiff1, 8, 20)
+            }
         }
     }
 })
 forever(function () {
-    controller.moveSprite(Cruiser, maxCruiserSpeed, maxCruiserSpeed)
-    RotateCruiser()
-    if (statusbar.value == 0) {
-        maxCruiserSpeed = 0
+    if (GameInitDone == 1) {
+        controller.moveSprite(Cruiser, maxCruiserSpeed, maxCruiserSpeed)
+        RotateCruiser()
+        if (statusbar.value == 0) {
+            maxCruiserSpeed = 0
+        }
     }
 })
 game.onUpdateInterval(30000, function () {
