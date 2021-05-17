@@ -14,28 +14,30 @@ namespace StatusBarKind {
     export const Fuel = StatusBarKind.create()
 }
 function CreateTressure () {
-    if (Math.percentChance(16)) {
-        if (CountTressure <= 1 && (info.life() == 3 && info.score() > 300 && game.runtime() > 200000)) {
-            CountTressure = 1
-            Treassure = sprites.create(img`
-                . . . . . . . 5 . . . . . . . . 
-                . . . . f . . . . . . . 5 . . . 
-                . . f f f f . . . . . . . . . . 
-                . f e e e e . 5 . . 5 . . . . . 
-                f e e e e e . . . . . . . . . 5 
-                f e e e e e . 5 . . . . . . . . 
-                f e e e e 5 4 5 5 5 . . 5 . . . 
-                . f e e e 4 5 5 5 5 5 . . . . . 
-                . f e e e 5 5 5 4 5 4 5 . . . . 
-                . . f e 4 5 4 5 5 5 5 5 . 5 . 5 
-                . . . f f f f f f f f f f . . . 
-                . . . f e e e e e e e e f . . . 
-                . . . f e e e e e e e e f . . . 
-                . . . f e e e e e e e e f . . . 
-                . . . f e e e e e e e e f . . . 
-                . . . f e e e e e e e e f . . . 
-                `, SpriteKind.treassure)
-            tiles.placeOnRandomTile(Treassure, assets.tile`myTile20`)
+    if (lastTreasureScore != info.score()) {
+        if (Math.percentChance(16)) {
+            if (CountTressure <= 1 && (info.life() == 3 && info.score() > 300 && game.runtime() > 200000)) {
+                CountTressure = 1
+                Treassure = sprites.create(img`
+                    . . . . . . . 5 . . . . . . . . 
+                    . . . . f . . . . . . . 5 . . . 
+                    . . f f f f . . . . . . . . . . 
+                    . f e e e e . 5 . . 5 . . . . . 
+                    f e e e e e . . . . . . . . . 5 
+                    f e e e e e . 5 . . . . . . . . 
+                    f e e e e 5 4 5 5 5 . . 5 . . . 
+                    . f e e e 4 5 5 5 5 5 . . . . . 
+                    . f e e e 5 5 5 4 5 4 5 . . . . 
+                    . . f e 4 5 4 5 5 5 5 5 . 5 . 5 
+                    . . . f f f f f f f f f f . . . 
+                    . . . f e e e e e e e e f . . . 
+                    . . . f e e e e e e e e f . . . 
+                    . . . f e e e e e e e e f . . . 
+                    . . . f e e e e e e e e f . . . 
+                    . . . f e e e e e e e e f . . . 
+                    `, SpriteKind.treassure)
+                tiles.placeOnRandomTile(Treassure, assets.tile`myTile20`)
+            }
         }
     }
 }
@@ -86,6 +88,10 @@ function PlaceOnTopRandom (mySprite: Sprite) {
         tiles.placeOnRandomTile(mySprite, assets.tile`myTile2`)
     }
 }
+statusbars.onZero(StatusBarKind.Fuel, function (status) {
+    game.showLongText("dein Tank ist leer!", DialogLayout.Bottom)
+    game.over(false, effects.dissolve)
+})
 scene.onHitWall(SpriteKind.raft, function (sprite, location) {
     RandNewSpeed(sprite, 3, 8)
 })
@@ -360,7 +366,26 @@ function initGame () {
         statusbar.setColor(7, 2)
         statusbar.max = 5000
         statusbar.value = statusbar.max
-        GameInitDone = 1
+        lastTreasureScore = 0
+        info.setLifeImage(img`
+ . . . 1 . . .  
+ . . 1 1 1 . .  
+ . 1 1 4 1 1 .  
+ . 1 4 4 4 1 .  
+ . 1 4 9 4 1 .  
+ . 1 9 9 9 1 .  
+ . 1 4 1 4 1 .  
+ . 1 4 1 4 1 .  
+ . 1 4 4 4 1 .  
+ . 1 4 4 4 1 .  
+ . 1 1 1 1 1 .  
+ . 1 1 1 1 1 .  
+ . 1 4 4 4 1 .  
+`)
+info.setBackgroundColor(0)
+info.setBorderColor(13)
+info.setFontColor(1)
+GameInitDone = 1
     }
 }
 function Create_Burning_Ship () {
@@ -390,13 +415,15 @@ function Create_Burning_Ship () {
     music.siren.play()
 }
 info.onLifeZero(function () {
+    game.showLongText("dein Schiff ist kaputt!", DialogLayout.Bottom)
     game.over(false, effects.dissolve)
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.treassure, function (sprite, otherSprite) {
-    otherSprite.destroy(effects.confetti, 2000)
+    otherSprite.destroy(effects.confetti, 1000)
     music.magicWand.play()
     info.changeScoreBy(333)
     CountTressure += -1
+    lastTreasureScore = info.score()
 })
 sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite, otherSprite) {
     chopper2.say("Hochziehen!", 1200)
@@ -466,6 +493,8 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.ship, function (sprite, othe
     if (HitWithWater >= 3) {
         RandNewSpeed(otherSprite, 8, 20)
         HitWithWater = 0
+        otherSprite.say("hey", 1000)
+        info.changeScoreBy(-1)
     }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite, otherSprite) {
@@ -684,6 +713,7 @@ let CountShips = 0
 let statusbar: StatusBarSprite = null
 let Treassure: Sprite = null
 let CountTressure = 0
+let lastTreasureScore = 0
 let GameInitDone = 0
 blockMenu.setControlsEnabled(false)
 GameInitDone = 0
