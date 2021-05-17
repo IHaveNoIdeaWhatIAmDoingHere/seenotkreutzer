@@ -382,7 +382,7 @@ function initGame () {
  . 1 1 1 1 1 .  
  . 1 4 4 4 1 .  
 `)
-info.setBackgroundColor(0)
+info.setBackgroundColor(8)
 info.setBorderColor(13)
 info.setFontColor(1)
 GameInitDone = 1
