@@ -3,7 +3,7 @@
 
 > Open this page at [https://ihavenoideawhatiamdoinghere.github.io/seenotkreutzer/](https://ihavenoideawhatiamdoinghere.github.io/seenotkreutzer/)
 
-HI, welcome to my litle game
+HI, welcome to our litle game
 you are the Captain (Vormann) of a rescue cruiser, you have to patrol the area and find people floating in the sea or their life rafts. 
 You can use your binoculars (b) to track down people that need help. 
 Burning ships can be extinguished by using your water canon (a). 
@@ -13,11 +13,5 @@ Maybe you find some hidden gems in the game as well...
 
 have fun...
 
-Controlls: 
-on PC: 
-/\ = w
-\/ = s
-< = a
-> = d 
-A = Spacebae
-B = Return
+Controlls on PC: 
+/\ = w | V = s | < = a | > = d | A = Spacebar | B = Return
