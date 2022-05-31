@@ -13,6 +13,17 @@ namespace SpriteKind {
 namespace StatusBarKind {
     export const Fuel = StatusBarKind.create()
 }
+controller.A.onEvent(ControllerButtonEvent.Released, function () {
+    if (maxCruiserSpeed != 0) {
+        maxCruiserSpeed = 100
+    }
+    if (finderOn == 0) {
+    	
+    } else {
+        finderOn = 0
+        finder2.destroy()
+    }
+})
 function CreateTressure () {
     if (lastTreasureScore != info.score()) {
         if (Math.percentChance(16)) {
@@ -47,53 +58,6 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile1`, function (sprite, l
         info.setLife(3)
     }
     statusbar.value = statusbar.max
-})
-scene.onHitWall(SpriteKind.swimmer, function (sprite, location) {
-    RandNewSpeed(sprite, 1, 1)
-})
-controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (GameInitDone == 1) {
-        if (controller.A.isPressed()) {
-            game.showLongText("Ships: " + CountShips + " Rafts: " + CountRafts + " Swimmers: " + CountSwimmers + " Burners: " + CountBurningShips + " Treasure: " + CountTressure + " Time:" + Math.round(game.runtime() / 1000) + " Fuel :" + statusbar.value, DialogLayout.Bottom)
-        }
-        if (finderOn == 0) {
-            finderOn = 1
-            finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
-            finder2.setFlag(SpriteFlag.GhostThroughWalls, true)
-            finder2.setFlag(SpriteFlag.GhostThroughSprites, true)
-            finder2.setPosition(Cruiser.x, Cruiser.y)
-            finder2.setStayInScreen(true)
-            if (CountBurningShips >= 1) {
-                finder2.follow(BurnShip, 300)
-            } else {
-                if (Math.percentChance(50) && CountSwimmers > 0) {
-                    finder2.follow(swimmer1, 300)
-                } else if (CountRafts > 0) {
-                    finder2.follow(RAFT1, 300)
-                } else {
-                    finderOn = 0
-                    finder2.destroy()
-                }
-            }
-        } else {
-            finderOn = 0
-            finder2.destroy()
-        }
-    }
-})
-function PlaceOnTopRandom (mySprite: Sprite) {
-    if (Math.percentChance(25)) {
-        tiles.placeOnRandomTile(mySprite, assets.tile`myTile3`)
-    } else {
-        tiles.placeOnRandomTile(mySprite, assets.tile`myTile2`)
-    }
-}
-statusbars.onZero(StatusBarKind.Fuel, function (status) {
-    game.showLongText("dein Tank ist leer!", DialogLayout.Bottom)
-    game.over(false, effects.dissolve)
-})
-scene.onHitWall(SpriteKind.raft, function (sprite, location) {
-    RandNewSpeed(sprite, 3, 8)
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (GameInitDone == 1) {
@@ -136,6 +100,23 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
             `, Cruiser, WaterX + randint(-20, 20), WaterY + randint(-20, 20))
         Water.setFlag(SpriteFlag.GhostThroughWalls, true)
     }
+})
+scene.onHitWall(SpriteKind.swimmer, function (sprite, location) {
+    RandNewSpeed(sprite, 1, 1)
+})
+function PlaceOnTopRandom (mySprite: Sprite) {
+    if (Math.percentChance(25)) {
+        tiles.placeOnRandomTile(mySprite, assets.tile`myTile3`)
+    } else {
+        tiles.placeOnRandomTile(mySprite, assets.tile`myTile2`)
+    }
+}
+statusbars.onZero(StatusBarKind.Fuel, function (status) {
+    game.showLongText("dein Tank ist leer!", DialogLayout.Bottom)
+    game.over(false, effects.dissolve)
+})
+scene.onHitWall(SpriteKind.raft, function (sprite, location) {
+    RandNewSpeed(sprite, 3, 8)
 })
 sprites.onDestroyed(SpriteKind.swimmer, function (sprite) {
     CountSwimmers += -1
@@ -338,17 +319,6 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.raft, function (sprite, otherSpr
     otherSprite.destroy()
     rescue()
 })
-controller.A.onEvent(ControllerButtonEvent.Released, function () {
-    if (maxCruiserSpeed != 0) {
-        maxCruiserSpeed = 100
-    }
-    if (finderOn == 0) {
-    	
-    } else {
-        finderOn = 0
-        finder2.destroy()
-    }
-})
 function initGame () {
     blockMenu.setControlsEnabled(false)
     if (GameInitDone == 0) {
@@ -527,6 +497,36 @@ blockMenu.onMenuOptionSelected(function (option, index) {
         initGame()
     }
 })
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (GameInitDone == 1) {
+        if (controller.A.isPressed()) {
+            game.showLongText("Ships: " + CountShips + " Rafts: " + CountRafts + " Swimmers: " + CountSwimmers + " Burners: " + CountBurningShips + " Treasure: " + CountTressure + " Time:" + Math.round(game.runtime() / 1000) + " Fuel :" + statusbar.value, DialogLayout.Bottom)
+        }
+        if (finderOn == 0) {
+            finderOn = 1
+            finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
+            finder2.setFlag(SpriteFlag.GhostThroughWalls, true)
+            finder2.setFlag(SpriteFlag.GhostThroughSprites, true)
+            finder2.setPosition(Cruiser.x, Cruiser.y)
+            finder2.setStayInScreen(true)
+            if (CountBurningShips >= 1) {
+                finder2.follow(BurnShip, 300)
+            } else {
+                if (Math.percentChance(50) && CountSwimmers > 0) {
+                    finder2.follow(swimmer1, 300)
+                } else if (CountRafts > 0) {
+                    finder2.follow(RAFT1, 300)
+                } else {
+                    finderOn = 0
+                    finder2.destroy()
+                }
+            }
+        } else {
+            finderOn = 0
+            finder2.destroy()
+        }
+    }
+})
 function SelectShip (mySprite: Sprite) {
     mySprite.vx = -1
     SelectSHip = randint(0, 8)
@@ -687,37 +687,38 @@ function SelectShip (mySprite: Sprite) {
 }
 let Schiff1: Sprite = null
 let SelectSHip = 0
+let RAFT1: Sprite = null
+let swimmer1: Sprite = null
 let HitWithWater = 0
 let RandNewSpeedY = 0
 let RandNewSpeedX = 0
 let RandNewSpeddMax = 0
 let oldSpeedX = 0
+let BurnShip: Sprite = null
 let beep = 0
+let CountBurningShips = 0
+let CountShips = 0
 let chopper2: Sprite = null
 let hospital2: Sprite = null
+let CountRafts = 0
+let CountSwimmers = 0
+let Cruiser: Sprite = null
 let Water: Sprite = null
 let WaterX = 0
 let WaterY = 0
 let CruiserOrientation = 0
-let maxCruiserSpeed = 0
-let RAFT1: Sprite = null
-let swimmer1: Sprite = null
-let BurnShip: Sprite = null
-let Cruiser: Sprite = null
-let finder2: Sprite = null
-let finderOn = 0
-let CountBurningShips = 0
-let CountSwimmers = 0
-let CountRafts = 0
-let CountShips = 0
 let statusbar: StatusBarSprite = null
 let Treassure: Sprite = null
 let CountTressure = 0
 let lastTreasureScore = 0
+let finder2: Sprite = null
+let finderOn = 0
+let maxCruiserSpeed = 0
 let GameInitDone = 0
 blockMenu.setControlsEnabled(false)
 GameInitDone = 0
 music.setVolume(80)
+game.splash("Wir sind Seenotretter", "      jetzt spenden!                 www.seenotretter.de    ")
 game.splash("für Alfred", "                                   von Papa                                   ")
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
