@@ -1,5 +1,5 @@
 {
-    "name": "Seenotkreutzer",
+    "name": "Pizza",
     "version": "1.4.0",
     "description": "",
     "dependencies": {
@@ -28,7 +28,7 @@
         "branch": "v1.4.40",
         "tag": "v1.4.40",
         "commits": "https://github.com/microsoft/pxt-arcade/commits/6e7016f2daff5c7a6de3f15abd027b9f32fe5b28",
-        "target": "1.8.23",
+        "target": "1.12.53",
         "pxt": "6.12.22",
         "targetId": "arcade"
     },

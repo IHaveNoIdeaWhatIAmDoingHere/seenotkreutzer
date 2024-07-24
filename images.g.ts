@@ -210,5 +210,12 @@ ff1.......f........ff1
         return null;
     })
 
+    helpers._registerFactory("song", function(name: string) {
+        switch(helpers.stringTrim(name)) {
+
+        }
+        return null;
+    })
+
 }
 // Automatisch generierter Code. Nicht bearbeiten.
