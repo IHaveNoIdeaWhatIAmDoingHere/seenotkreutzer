@@ -226,6 +226,23 @@ function rescue () {
             . . . . . . f 5 5 . . . . . . . 
             `,img`
             . . . . . . . . . . . . . . . . 
+            . . . . . . 4 . . . . . . . . . 
+            . . . . . . f . . . . . . . . . 
+            . . . . . 9 f 9 9 . . . . . . . 
+            . . . . . 9 f 5 9 . . . . . . . 
+            . . . . . 9 f 5 9 . . . . . . . 
+            . . . . . 5 f 5 5 . . . . . . . 
+            . . . . . 5 f f f f f f f f 4 . 
+            4 f f f f f f f 5 . . . . . . . 
+            . . . . . 5 5 f 5 . . . . . . . 
+            . . . . . . 5 f . . . . . . . . 
+            . . . . . . . f . . . . . . . . 
+            . . . . . . . f . . . . . . . . 
+            . . . . . . . f . . . . . . . . 
+            . . . . . . . 4 . . . . . . . . 
+            . . . . . . f 5 5 . . . . . . . 
+            `,img`
+            . . . . . . . . . . . . . . . . 
             . . . . . . . . . . 4 . . . . . 
             . . . . . . . . . f . . . . . . 
             . . . . . 9 9 9 f . . . . . . . 
@@ -632,23 +649,7 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 6) {
-        mySprite.setImage(img`
-            . . . . . . . d 2 7 . . . . 
-            . . . . . . 1 d 1 . . . . . 
-            . . . . . . 1 d 1 1 . . . . 
-            . . . . . 1 1 d 1 1 . . . . 
-            . . . . 1 1 1 d 1 1 1 . . . 
-            . . . . 1 1 1 d 1 1 1 . . . 
-            . . . 1 1 1 1 d 1 1 1 1 . . 
-            . . . 1 1 1 1 d 1 1 1 1 . . 
-            . . 1 1 1 1 1 d 1 1 1 1 1 . 
-            . 1 1 1 1 1 1 d 1 1 1 1 1 1 
-            . 1 1 1 1 1 1 d 1 1 1 1 1 1 
-            1 . . . . . . d . . . . . . 
-            7 e 7 e 7 e 7 e 7 e 7 e 7 e 
-            . 7 e 7 e 7 e 7 e 7 e 7 e 7 
-            . . 7 e 7 e 7 e 7 e 7 e 7 e 
-            `)
+        mySprite.setImage(assets.image`Edith`)
     }
     if (SelectSHip == 7) {
         mySprite.setImage(img`
@@ -718,8 +719,9 @@ let GameInitDone = 0
 blockMenu.setControlsEnabled(false)
 GameInitDone = 0
 music.setVolume(80)
+game.splash("v1.5", "")
 game.splash("Wir sind Seenotretter", "      jetzt spenden!                 www.seenotretter.de    ")
-game.splash("für Alfred", "                                   von Papa                                   ")
+game.splash("für Alfred, Ruth und Albert", "                                   von Papa                                   ")
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -873,6 +875,12 @@ game.onUpdateInterval(1000, function () {
                 . . . . . . . . . . . . . . . . 
                 . . . . . . . . . . . . . . . . 
                 `, SpriteKind.swimmer)
+            animation.runImageAnimation(
+            swimmer1,
+            assets.animation`SwimAnim`,
+            500,
+            true
+            )
             PlaceOnTopRandom(swimmer1)
             CountSwimmers += 1
             RandNewSpeed(swimmer1, 1, 1)
