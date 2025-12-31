@@ -236,6 +236,17 @@ ff1.......f........ff1
 . . . . . . . . . . . . . . . . 
 . . . . . . . . . . . . . . . . 
 `;
+            case "image10":
+            case "Repair":return img`
+. . . . . f d . 
+. 1 . . . f d f 
+. . 1 . f f f f 
+. . . 1 f . . . 
+. . f f 1 5 . . 
+f f f . 5 5 5 . 
+f d f . . 5 5 5 
+. d f . . . 5 5 
+`;
         }
         return null;
     })

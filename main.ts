@@ -7,7 +7,7 @@ namespace SpriteKind {
     export const finder = SpriteKind.create()
     export const hospital = SpriteKind.create()
     export const burningShip = SpriteKind.create()
-    export const map = SpriteKind.create()
+    export const map2 = SpriteKind.create()
     export const treassure = SpriteKind.create()
 }
 namespace StatusBarKind {
@@ -59,6 +59,9 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile1`, function (sprite, l
     }
     statusbar.value = statusbar.max
 })
+scene.onHitWall(SpriteKind.swimmer, function (sprite2, location2) {
+    RandNewSpeed(sprite2, 1, 1)
+})
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (GameInitDone == 1) {
         if (maxCruiserSpeed != 0) {
@@ -101,9 +104,6 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         Water.setFlag(SpriteFlag.GhostThroughWalls, true)
     }
 })
-scene.onHitWall(SpriteKind.swimmer, function (sprite, location) {
-    RandNewSpeed(sprite, 1, 1)
-})
 function PlaceOnTopRandom (mySprite: Sprite) {
     if (Math.percentChance(25)) {
         tiles.placeOnRandomTile(mySprite, assets.tile`myTile3`)
@@ -115,27 +115,8 @@ statusbars.onZero(StatusBarKind.Fuel, function (status) {
     game.showLongText("dein Tank ist leer!", DialogLayout.Bottom)
     game.over(false, effects.dissolve)
 })
-scene.onHitWall(SpriteKind.raft, function (sprite, location) {
-    RandNewSpeed(sprite, 3, 8)
-})
-sprites.onDestroyed(SpriteKind.swimmer, function (sprite) {
-    CountSwimmers += -1
-})
-scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile12`, function (sprite, location) {
-    if (game.ask("möchtest du beenden?", "Highscore bisher: " + info.highScore())) {
-        game.over(true, effects.confetti)
-    } else {
-        Cruiser.y += -5
-    }
-})
-sprites.onDestroyed(SpriteKind.raft, function (sprite) {
-    CountRafts += -1
-})
-scene.onHitWall(SpriteKind.ship, function (sprite, location) {
-    RandNewSpeed(sprite, 7, 20)
-})
-scene.onHitWall(SpriteKind.burningShip, function (sprite, location) {
-    RandNewSpeed(sprite, 1, 3)
+scene.onHitWall(SpriteKind.raft, function (sprite3, location3) {
+    RandNewSpeed(sprite3, 3, 8)
 })
 function rescue () {
     effects.clearParticles(Cruiser)
@@ -269,6 +250,11 @@ function rescue () {
         chopper2.follow(Cruiser, 250)
     }
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.swimmer, function (sprite14, otherSprite6) {
+    info.changeScoreBy(50)
+    otherSprite6.destroy()
+    rescue()
+})
 function RotateCruiser () {
     if (Math.abs(Cruiser.vx) > 0 || Math.abs(Cruiser.vy) > 0) {
         if (controller.A.isPressed()) {
@@ -296,21 +282,8 @@ function RotateCruiser () {
         }
     }
 }
-sprites.onOverlap(SpriteKind.ship, SpriteKind.ship, function (sprite, otherSprite) {
-    music.bigCrash.play()
-    scene.cameraShake(4, 1000)
-    otherSprite.startEffect(effects.bubbles, 500)
-    RandNewSpeed(otherSprite, 3, 8)
-    otherSprite.setKind(SpriteKind.raft)
-    otherSprite.setImage(assets.image`raft`)
-    CountShips += -1
-    CountRafts += 1
-    RandNewSpeed(sprite, 7, 20)
-    if (CountBurningShips < 1) {
-        sprite.destroy(effects.bubbles, 500)
-        CountShips += -1
-        Create_Burning_Ship()
-    }
+statusbars.onStatusReached(StatusBarKind.Fuel, statusbars.StatusComparison.LTE, statusbars.ComparisonType.Percentage, 25, function (status) {
+    game.showLongText("dein Tank ist gleich leer! Fahr zum gelben Hafenkran zum Aufladen", DialogLayout.Bottom)
 })
 function play_sos (num: number) {
     for (let index = 0; index < num; index++) {
@@ -331,10 +304,22 @@ function play_sos (num: number) {
         music.rest(music.beat(BeatFraction.Double))
     }
 }
-sprites.onOverlap(SpriteKind.Player, SpriteKind.raft, function (sprite, otherSprite) {
-    info.changeScoreBy(5)
-    otherSprite.destroy()
-    rescue()
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.ship, function (sprite15, otherSprite7) {
+    HitWithWater += 1
+    sprite15.destroy()
+    if (HitWithWater >= 3) {
+        RandNewSpeed(otherSprite7, 8, 20)
+        HitWithWater = 0
+        otherSprite7.say("hey", 1000)
+        info.changeScoreBy(-1)
+    }
+})
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile12`, function (sprite5, location4) {
+    if (game.ask("möchtest du beenden?", "Highscore bisher: " + ("" + info.highScore()))) {
+        game.over(true, effects.confetti)
+    } else {
+        Cruiser.y += -5
+    }
 })
 function initGame () {
     blockMenu.setControlsEnabled(false)
@@ -352,29 +337,34 @@ function initGame () {
         statusbar.setBarBorder(1, 13)
         statusbar.setColor(7, 2)
         statusbar.max = 5000
-        statusbar.value = statusbar.max
+        statusbar.value = 2500
         lastTreasureScore = 0
         info.setLifeImage(img`
- . . . 1 . . .  
- . . 1 1 1 . .  
- . 1 1 4 1 1 .  
- . 1 4 4 4 1 .  
- . 1 4 9 4 1 .  
- . 1 9 9 9 1 .  
- . 1 4 1 4 1 .  
- . 1 4 1 4 1 .  
- . 1 4 4 4 1 .  
- . 1 4 4 4 1 .  
- . 1 1 1 1 1 .  
- . 1 1 1 1 1 .  
- . 1 4 4 4 1 .  
-`)
+                . . . . .f d. 
+                . 1. . .f d f
+                . . 1.f f f f
+                . . . 1 f. . . 
+                . .f f 1 5. . 
+                f f f. 5 5 5. 
+                f d f. . 5 5 5
+                .d f. . . 5 5
+            `)
 info.setBackgroundColor(8)
 info.setBorderColor(13)
 info.setFontColor(1)
 GameInitDone = 1
     }
 }
+scene.onHitWall(SpriteKind.ship, function (sprite7, location5) {
+    RandNewSpeed(sprite7, 7, 20)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.treassure, function (sprite11, otherSprite3) {
+    otherSprite3.destroy(effects.confetti, 1000)
+    music.magicWand.play()
+    info.changeScoreBy(333)
+    CountTressure += -1
+    lastTreasureScore = info.score()
+})
 function Create_Burning_Ship () {
     BurnShip = sprites.create(img`
         . . . . . . . . . . . . . . . . 
@@ -399,20 +389,63 @@ function Create_Burning_Ship () {
     CountBurningShips += 1
     RandNewSpeed(BurnShip, 1, 3)
     BurnShip.startEffect(effects.fire)
-    music.siren.play()
+    play_sos(2)
 }
+sprites.onDestroyed(SpriteKind.swimmer, function (sprite4) {
+    CountSwimmers += -1
+})
 info.onLifeZero(function () {
     game.showLongText("dein Schiff ist kaputt!", DialogLayout.Bottom)
     game.over(false, effects.dissolve)
 })
-sprites.onOverlap(SpriteKind.Player, SpriteKind.treassure, function (sprite, otherSprite) {
-    otherSprite.destroy(effects.confetti, 1000)
-    music.magicWand.play()
-    info.changeScoreBy(333)
-    CountTressure += -1
-    lastTreasureScore = info.score()
+function RandNewSpeed (mySprite2: Sprite, min2: number, max2: number) {
+    oldSpeedX = mySprite2.vx
+    RandNewSpeddMax = min2
+    RandNewSpeedX = randint(0, max2)
+    RandNewSpeedY = randint(0, max2)
+    if (RandNewSpeedX == 0 && RandNewSpeedY == 0) {
+        if (Math.percentChance(50)) {
+            RandNewSpeedY = min2
+        } else {
+            RandNewSpeedX = min2
+        }
+    }
+    if (Math.percentChance(50)) {
+        RandNewSpeedY = 0 - RandNewSpeedY
+    }
+    if (Math.percentChance(50)) {
+        RandNewSpeedX = 0 - RandNewSpeedX
+    }
+    mySprite2.setVelocity(RandNewSpeedX, RandNewSpeedY)
+    if (oldSpeedX < 0 && RandNewSpeedX >= 0) {
+        mySprite2.image.flipX()
+    }
+    if (oldSpeedX >= 0 && RandNewSpeedX < 0) {
+        mySprite2.image.flipX()
+    }
+}
+sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite16, otherSprite8) {
+    music.bigCrash.play()
+    otherSprite8.startEffect(effects.bubbles, 2000)
+    Cruiser.setVelocity(0, 0)
+    info.changeLifeBy(-1)
+    if (info.life() < 2) {
+        game.showLongText("dein Kreuzer ist schwer Beschädigt. Rette alle Beteiligten fahre zum gelben Hafenkran zum reparieren.", DialogLayout.Center)
+    }
+    info.changeScoreBy(-100)
+    otherSprite8.setFlag(SpriteFlag.GhostThroughSprites, true)
+    scene.cameraShake(4, 2000)
+    otherSprite8.x += 1
+    otherSprite8.y += 1
+    RandNewSpeed(otherSprite8, 3, 8)
+    otherSprite8.setKind(SpriteKind.raft)
+    otherSprite8.setImage(assets.image`raft`)
+    CountShips += -1
+    CountRafts += 1
+    pause(5000)
+    otherSprite8.setFlag(SpriteFlag.GhostThroughSprites, false)
 })
-sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite, otherSprite) {
+sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite12, otherSprite4) {
     chopper2.say("Hochziehen!", 1200)
     pause(1200)
     chopper2.follow(hospital2, 250)
@@ -426,98 +459,34 @@ sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite, other
         music.magicWand.play()
     }
 })
-function RandNewSpeed (mySprite: Sprite, min: number, max: number) {
-    oldSpeedX = mySprite.vx
-    RandNewSpeddMax = min
-    RandNewSpeedX = randint(0, max)
-    RandNewSpeedY = randint(0, max)
-    if (RandNewSpeedX == 0 && RandNewSpeedY == 0) {
-        if (Math.percentChance(50)) {
-            RandNewSpeedY = min
-        } else {
-            RandNewSpeedX = min
-        }
-    }
-    if (Math.percentChance(50)) {
-        RandNewSpeedY = 0 - RandNewSpeedY
-    }
-    if (Math.percentChance(50)) {
-        RandNewSpeedX = 0 - RandNewSpeedX
-    }
-    mySprite.setVelocity(RandNewSpeedX, RandNewSpeedY)
-    if (oldSpeedX < 0 && RandNewSpeedX >= 0) {
-        mySprite.image.flipX()
-    }
-    if (oldSpeedX >= 0 && RandNewSpeedX < 0) {
-        mySprite.image.flipX()
-    }
-}
-sprites.onOverlap(SpriteKind.Projectile, SpriteKind.burningShip, function (sprite, otherSprite) {
-    HitWithWater += 1
-    sprite.destroy()
-    if (HitWithWater >= 5) {
-        effects.clearParticles(otherSprite)
-        otherSprite.setKind(SpriteKind.ship)
-        otherSprite.setFlag(SpriteFlag.GhostThroughSprites, true)
-        CountBurningShips += -1
-        CountShips += 1
-        HitWithWater = 0
-        info.changeScoreBy(125)
-        otherSprite.say("Danke! Gelöscht!", 1000)
-        pause(5000)
-        RandNewSpeed(otherSprite, 8, 20)
-        otherSprite.setFlag(SpriteFlag.GhostThroughSprites, false)
-    }
-})
-sprites.onOverlap(SpriteKind.Player, SpriteKind.swimmer, function (sprite, otherSprite) {
-    info.changeScoreBy(50)
-    otherSprite.destroy()
-    rescue()
-})
-sprites.onOverlap(SpriteKind.Projectile, SpriteKind.ship, function (sprite, otherSprite) {
-    HitWithWater += 1
-    sprite.destroy()
-    if (HitWithWater >= 3) {
-        RandNewSpeed(otherSprite, 8, 20)
-        HitWithWater = 0
-        otherSprite.say("hey", 1000)
-        info.changeScoreBy(-1)
-    }
-})
-sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite, otherSprite) {
+sprites.onOverlap(SpriteKind.ship, SpriteKind.ship, function (sprite9, otherSprite) {
     music.bigCrash.play()
-    otherSprite.startEffect(effects.bubbles, 2000)
-    Cruiser.setVelocity(0, 0)
-    info.changeLifeBy(-1)
-    info.changeScoreBy(-100)
-    otherSprite.setFlag(SpriteFlag.GhostThroughSprites, true)
-    scene.cameraShake(4, 2000)
-    otherSprite.x += 1
-    otherSprite.y += 1
+    scene.cameraShake(4, 1000)
+    otherSprite.startEffect(effects.bubbles, 500)
     RandNewSpeed(otherSprite, 3, 8)
     otherSprite.setKind(SpriteKind.raft)
     otherSprite.setImage(assets.image`raft`)
     CountShips += -1
     CountRafts += 1
-    pause(5000)
-    otherSprite.setFlag(SpriteFlag.GhostThroughSprites, false)
+    RandNewSpeed(sprite9, 7, 20)
+    if (CountBurningShips < 1) {
+        sprite9.destroy(effects.bubbles, 500)
+        CountShips += -1
+        Create_Burning_Ship()
+    }
 })
-blockMenu.onMenuOptionSelected(function (option, index) {
-    if (index == 0) {
-        tiles.setTilemap(tilemap`Level1`)
-        blockMenu.closeMenu()
-        initGame()
-    }
-    if (index == 1) {
-        tiles.setTilemap(tilemap`Karte2`)
-        blockMenu.closeMenu()
-        initGame()
-    }
+sprites.onDestroyed(SpriteKind.raft, function (sprite6) {
+    CountRafts += -1
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.raft, function (sprite10, otherSprite2) {
+    info.changeScoreBy(5)
+    otherSprite2.destroy()
+    rescue()
 })
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (GameInitDone == 1) {
         if (controller.A.isPressed()) {
-            game.showLongText("Ships: " + CountShips + " Rafts: " + CountRafts + " Swimmers: " + CountSwimmers + " Burners: " + CountBurningShips + " Treasure: " + CountTressure + " Time:" + Math.round(game.runtime() / 1000) + " Fuel :" + statusbar.value, DialogLayout.Bottom)
+            game.showLongText("Ships: " + ("" + CountShips) + " Rafts: " + ("" + CountRafts) + " Swimmers: " + ("" + CountSwimmers) + " Burners: " + ("" + CountBurningShips) + " Treasure: " + ("" + CountTressure) + " Time:" + ("" + Math.round(game.runtime() / 1000)) + " Fuel :" + ("" + statusbar.value), DialogLayout.Bottom)
         }
         if (finderOn == 0) {
             finderOn = 1
@@ -528,15 +497,13 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
             finder2.setStayInScreen(true)
             if (CountBurningShips >= 1) {
                 finder2.follow(BurnShip, 300)
+            } else if (Math.percentChance(50) && CountSwimmers > 0) {
+                finder2.follow(swimmer1, 300)
+            } else if (CountRafts > 0) {
+                finder2.follow(RAFT1, 300)
             } else {
-                if (Math.percentChance(50) && CountSwimmers > 0) {
-                    finder2.follow(swimmer1, 300)
-                } else if (CountRafts > 0) {
-                    finder2.follow(RAFT1, 300)
-                } else {
-                    finderOn = 0
-                    finder2.destroy()
-                }
+                finderOn = 0
+                finder2.destroy()
             }
         } else {
             finderOn = 0
@@ -544,11 +511,11 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
         }
     }
 })
-function SelectShip (mySprite: Sprite) {
-    mySprite.vx = -1
+function SelectShip (mySprite3: Sprite) {
+    mySprite3.vx = -1
     SelectSHip = randint(0, 9)
     if (SelectSHip == 0) {
-        mySprite.setImage(img`
+        mySprite3.setImage(img`
             . . . . . . . . . . . . . . . . . . 
             . . . . . . . . . . . e 2 . . . . . 
             . . . 1 e 2 . . . . 1 e . . . . . . 
@@ -568,7 +535,7 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 1) {
-        mySprite.setImage(img`
+        mySprite3.setImage(img`
             . . . . . . . d 2 7 . . . . 
             . . . . . . 1 d 1 . . . . . 
             . . . . . . 1 d 1 1 . . . . 
@@ -587,7 +554,7 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 2) {
-        mySprite.setImage(img`
+        mySprite3.setImage(img`
             ...........11...................
             ...........91...................
             ..333cccaaa11eeefff555111eee222.
@@ -601,7 +568,7 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 3) {
-        mySprite.setImage(img`
+        mySprite3.setImage(img`
             . . . . . . . . . . . . . . . . 1 1 1 . 
             . . . . . . . . . . . . . . . . 9 9 1 . 
             . . c c . c c . c c . c c . c c 1 1 1 . 
@@ -613,7 +580,7 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 4) {
-        mySprite.setImage(img`
+        mySprite3.setImage(img`
             ............bbb.............
             ...........bb...............
             ..........ddd...............
@@ -633,7 +600,7 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 5) {
-        mySprite.setImage(img`
+        mySprite3.setImage(img`
             . . . . d . . . . . . . . 
             . . . d d d d . . . . . . 
             . . . d d d d . . . . . . 
@@ -649,10 +616,10 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 6) {
-        mySprite.setImage(assets.image`Edith`)
+        mySprite3.setImage(assets.image`Edith`)
     }
     if (SelectSHip == 7) {
-        mySprite.setImage(img`
+        mySprite3.setImage(img`
             ..........1f5..1f2......
             .....1f7.11f..11f..1fa..
             ....11f.111f.111f.11f...
@@ -672,7 +639,7 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 8) {
-        mySprite.setImage(img`
+        mySprite3.setImage(img`
             . . . . . . . . . . . . b . 
             . . . . . . . . . . . b . . 
             . . . . . . . . . . b . . . 
@@ -686,26 +653,58 @@ function SelectShip (mySprite: Sprite) {
             `)
     }
     if (SelectSHip == 9) {
-        mySprite.setImage(assets.image`Edith`)
+        mySprite3.setImage(assets.image`Edith`)
     }
 }
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.burningShip, function (sprite13, otherSprite5) {
+    HitWithWater += 1
+    sprite13.destroy()
+    if (HitWithWater >= 5) {
+        effects.clearParticles(otherSprite5)
+        otherSprite5.setKind(SpriteKind.ship)
+        otherSprite5.setFlag(SpriteFlag.GhostThroughSprites, true)
+        CountBurningShips += -1
+        CountShips += 1
+        HitWithWater = 0
+        info.changeScoreBy(125)
+        otherSprite5.say("Danke! Gelöscht!", 1000)
+        pause(5000)
+        RandNewSpeed(otherSprite5, 8, 20)
+        otherSprite5.setFlag(SpriteFlag.GhostThroughSprites, false)
+    }
+})
+blockMenu.onMenuOptionSelected(function (option, index5) {
+    if (index5 == 0) {
+        tiles.setTilemap(tilemap`Level1`)
+        blockMenu.closeMenu()
+        initGame()
+    }
+    if (index5 == 1) {
+        tiles.setTilemap(tilemap`Karte2`)
+        blockMenu.closeMenu()
+        initGame()
+    }
+})
+scene.onHitWall(SpriteKind.burningShip, function (sprite8, location6) {
+    RandNewSpeed(sprite8, 1, 3)
+})
 let Schiff1: Sprite = null
 let SelectSHip = 0
 let RAFT1: Sprite = null
 let swimmer1: Sprite = null
-let HitWithWater = 0
+let CountRafts = 0
+let CountShips = 0
 let RandNewSpeedY = 0
 let RandNewSpeedX = 0
 let RandNewSpeddMax = 0
 let oldSpeedX = 0
-let BurnShip: Sprite = null
-let beep = 0
+let CountSwimmers = 0
 let CountBurningShips = 0
-let CountShips = 0
+let BurnShip: Sprite = null
+let HitWithWater = 0
+let beep = 0
 let chopper2: Sprite = null
 let hospital2: Sprite = null
-let CountRafts = 0
-let CountSwimmers = 0
 let Cruiser: Sprite = null
 let Water: Sprite = null
 let WaterX = 0
@@ -722,10 +721,8 @@ let GameInitDone = 0
 blockMenu.setControlsEnabled(false)
 GameInitDone = 0
 music.setVolume(80)
-game.splash("v1.5", "")
 game.splash("Wir sind Seenotretter", "      jetzt spenden!                 www.seenotretter.de    ")
-game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   ")
-play_sos(2)
+game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   v1.5")
 blockMenu.setColors(1, 15)
 blockMenu.showMenu(["Karte 1", "Karte 2"], MenuStyle.List, MenuLocation.FullScreen)
 blockMenu.setControlsEnabled(true)

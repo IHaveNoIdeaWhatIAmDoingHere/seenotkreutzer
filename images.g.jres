@@ -59,6 +59,11 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "meinBild"
     },
+    "image10": {
+        "data": "hwQIAAgAAAAAAPAPEADw3QAB//8AEA8AAP9RAP8PVQXdD1BV8A8AVQ==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "Repair"
+    },
     "anim1": {
         "namespace": "myAnimations",
         "id": "anim1",
