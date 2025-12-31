@@ -722,7 +722,7 @@ blockMenu.setControlsEnabled(false)
 GameInitDone = 0
 music.setVolume(80)
 game.splash("Wir sind Seenotretter", "      jetzt spenden!                 www.seenotretter.de    ")
-game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   v1.5")
+game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   v1.6")
 blockMenu.setColors(1, 15)
 blockMenu.showMenu(["Karte 1", "Karte 2"], MenuStyle.List, MenuLocation.FullScreen)
 blockMenu.setControlsEnabled(true)
