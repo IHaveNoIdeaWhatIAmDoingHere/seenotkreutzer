@@ -54,10 +54,15 @@ function CreateTressure () {
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile1`, function (sprite, location) {
     if (info.life() < 3) {
-        game.showLongText("Das Schiff wurde Repariert!", DialogLayout.Center)
         info.setLife(3)
+        statusbar.value = statusbar.max
+        game.showLongText("Das Schiff wurde repariert und aufgetankt", DialogLayout.Center)
+    } else {
+        if (statusbar.value < statusbar.max - 100) {
+            statusbar.value = statusbar.max
+            game.showLongText("Das Schiff wurde aufgetankt", DialogLayout.Center)
+        }
     }
-    statusbar.value = statusbar.max
 })
 scene.onHitWall(SpriteKind.swimmer, function (sprite2, location2) {
     RandNewSpeed(sprite2, 1, 1)
@@ -283,7 +288,9 @@ function RotateCruiser () {
     }
 }
 statusbars.onStatusReached(StatusBarKind.Fuel, statusbars.StatusComparison.LTE, statusbars.ComparisonType.Percentage, 25, function (status) {
-    game.showLongText("dein Tank ist gleich leer! Fahr zum gelben Hafenkran zum Aufladen", DialogLayout.Bottom)
+    if (GameInitDone == 1) {
+        game.showLongText("dein Tank ist gleich leer! Fahr zum gelben Hafenkran zum Aufladen", DialogLayout.Bottom)
+    }
 })
 function play_sos (num: number) {
     for (let index = 0; index < num; index++) {
@@ -335,9 +342,9 @@ function initGame () {
         statusbar.positionDirection(CollisionDirection.Top)
         statusbar.setOffsetPadding(0, 0)
         statusbar.setBarBorder(1, 13)
-        statusbar.setColor(7, 2)
         statusbar.max = 5000
-        statusbar.value = 2500
+        statusbar.value = statusbar.max
+        statusbar.setColor(7, 2)
         lastTreasureScore = 0
         info.setLifeImage(img`
                 . . . . .f d. 
@@ -389,7 +396,6 @@ function Create_Burning_Ship () {
     CountBurningShips += 1
     RandNewSpeed(BurnShip, 1, 3)
     BurnShip.startEffect(effects.fire)
-    play_sos(2)
 }
 sprites.onDestroyed(SpriteKind.swimmer, function (sprite4) {
     CountSwimmers += -1
@@ -430,7 +436,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite16, otherS
     Cruiser.setVelocity(0, 0)
     info.changeLifeBy(-1)
     if (info.life() < 2) {
-        game.showLongText("dein Kreuzer ist schwer Beschädigt. Rette alle Beteiligten fahre zum gelben Hafenkran zum reparieren.", DialogLayout.Center)
+        game.showLongText("dein Kreuzer ist schwer Beschädigt. Rette alle Beteiligten & fahre zum gelben Hafenkran zum reparieren.", DialogLayout.Center)
     }
     info.changeScoreBy(-100)
     otherSprite8.setFlag(SpriteFlag.GhostThroughSprites, true)
@@ -469,6 +475,7 @@ sprites.onOverlap(SpriteKind.ship, SpriteKind.ship, function (sprite9, otherSpri
     CountShips += -1
     CountRafts += 1
     RandNewSpeed(sprite9, 7, 20)
+    play_sos(2)
     if (CountBurningShips < 1) {
         sprite9.destroy(effects.bubbles, 500)
         CountShips += -1
