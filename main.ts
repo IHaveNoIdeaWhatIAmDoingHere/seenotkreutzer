@@ -12,6 +12,7 @@ namespace SpriteKind {
 }
 namespace StatusBarKind {
     export const Fuel = StatusBarKind.create()
+    export const Pos = StatusBarKind.create()
 }
 controller.A.onEvent(ControllerButtonEvent.Released, function () {
     if (maxCruiserSpeed != 0) {
@@ -25,7 +26,7 @@ controller.A.onEvent(ControllerButtonEvent.Released, function () {
     }
 })
 function CreateTressure () {
-    if (lastTreasureScore != info.score()) {
+    if (info.score() > lastTreasureScore) {
         if (Math.percentChance(16)) {
             if (CountTressure <= 1 && (info.life() == 3 && info.score() > 300 && game.runtime() > 200000)) {
                 CountTressure = 1
@@ -116,10 +117,46 @@ function PlaceOnTopRandom (mySprite: Sprite) {
         tiles.placeOnRandomTile(mySprite, assets.tile`myTile2`)
     }
 }
+function B_Diff1 () {
+    sprites.destroy(PosBarHaverist)
+    if (finderOn == 0) {
+        finderOn = 1
+        if (Difficulty == 1) {
+            PosBarHaverist = statusbars.create(0, 3, StatusBarKind.Pos)
+            PosBarHaverist.positionDirection(CollisionDirection.Bottom)
+            PosBarHaverist.setOffsetPadding(-80, 15)
+        }
+        finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
+        finder2.destroy()
+        if (CountBurningShips >= 1) {
+            CalcPosition(BurnShip)
+            game.showLongText("Eine Rettungsinsel wurde bei Position " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Top)
+        } else if (Math.percentChance(50) && CountSwimmers > 0) {
+            CalcPosition(swimmer1)
+            game.showLongText("Eine im Wasser treibende Person wurde bei Position " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Top)
+        } else if (CountRafts > 0) {
+            CalcPosition(RAFT1)
+            game.showLongText("Eine Rettungsinsel wurde bei Position " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Top)
+        } else {
+            finderOn = 0
+            sprites.destroy(PosBarHaverist)
+        }
+        PosBarHaverist.setLabel(CalcPositionReturn)
+    } else {
+        finderOn = 0
+        sprites.destroy(PosBarHaverist)
+    }
+}
 statusbars.onZero(StatusBarKind.Fuel, function (status) {
     game.showLongText("dein Tank ist leer!", DialogLayout.Bottom)
     game.over(false, effects.dissolve)
 })
+function SetDifficulty () {
+    console.log("set Diff")
+    blockMenu.setColors(2, 1)
+    blockMenu.setControlsEnabled(true)
+    blockMenu.showMenu(["Einfach", "Schwer"], MenuStyle.List, MenuLocation.FullScreen)
+}
 scene.onHitWall(SpriteKind.raft, function (sprite3, location3) {
     RandNewSpeed(sprite3, 3, 8)
 })
@@ -311,6 +348,9 @@ function play_sos (num: number) {
         music.rest(music.beat(BeatFraction.Double))
     }
 }
+function CalcPosition (mySprite: Sprite) {
+    CalcPositionReturn = "L: " + Math.round(5000 + -1 * mySprite.y) / 1 + " N - B:" + Math.round(5000 + mySprite.x) / 1 + " O"
+}
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.ship, function (sprite15, otherSprite7) {
     HitWithWater += 1
     sprite15.destroy()
@@ -359,7 +399,12 @@ function initGame () {
 info.setBackgroundColor(8)
 info.setBorderColor(13)
 info.setFontColor(1)
-GameInitDone = 1
+if (Difficulty == 1) {
+            PosBar = statusbars.create(0, 3, StatusBarKind.Pos)
+            PosBar.positionDirection(CollisionDirection.Bottom)
+            PosBar.setOffsetPadding(-80, 5)
+        }
+        GameInitDone = 1
     }
 }
 scene.onHitWall(SpriteKind.ship, function (sprite7, location5) {
@@ -451,11 +496,17 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite16, otherS
     pause(5000)
     otherSprite8.setFlag(SpriteFlag.GhostThroughSprites, false)
 })
+function SelectMap () {
+    console.log("setMap")
+    blockMenu.setColors(1, 15)
+    blockMenu.setControlsEnabled(true)
+    blockMenu.showMenu(["Karte 1", "Karte 2"], MenuStyle.List, MenuLocation.FullScreen)
+}
 sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite12, otherSprite4) {
     chopper2.say("Hochziehen!", 1200)
     pause(1200)
     chopper2.follow(hospital2, 250)
-    pause(3000)
+    pause(5000)
     scene.cameraFollowSprite(Cruiser)
     maxCruiserSpeed = 100
     hospital2.destroy()
@@ -465,6 +516,37 @@ sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite12, oth
         music.magicWand.play()
     }
 })
+function UpdatePosBar () {
+    CalcPosition(Cruiser)
+    PosBar.setLabel(CalcPositionReturn)
+    console.logValue("CalcPosREaturn", CalcPositionReturn)
+}
+function B_Diff0 () {
+    if (controller.A.isPressed()) {
+        game.showLongText("Ships: " + ("" + CountShips) + " Rafts: " + ("" + CountRafts) + " Swimmers: " + ("" + CountSwimmers) + " Burners: " + ("" + CountBurningShips) + " Treasure: " + ("" + CountTressure) + " Time:" + ("" + Math.round(game.runtime() / 1000)) + " Fuel :" + ("" + statusbar.value) + "Position X:" + Cruiser.x + "Position Y:" + Cruiser.y + "", DialogLayout.Full)
+    }
+    if (finderOn == 0) {
+        finderOn = 1
+        finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
+        finder2.setFlag(SpriteFlag.GhostThroughWalls, true)
+        finder2.setFlag(SpriteFlag.GhostThroughSprites, true)
+        finder2.setPosition(Cruiser.x, Cruiser.y)
+        finder2.setStayInScreen(true)
+        if (CountBurningShips >= 1) {
+            finder2.follow(BurnShip, 300)
+        } else if (Math.percentChance(50) && CountSwimmers > 0) {
+            finder2.follow(swimmer1, 300)
+        } else if (CountRafts > 0) {
+            finder2.follow(RAFT1, 300)
+        } else {
+            finderOn = 0
+            finder2.destroy()
+        }
+    } else {
+        finderOn = 0
+        finder2.destroy()
+    }
+}
 sprites.onOverlap(SpriteKind.ship, SpriteKind.ship, function (sprite9, otherSprite) {
     music.bigCrash.play()
     scene.cameraShake(4, 1000)
@@ -486,35 +568,34 @@ sprites.onDestroyed(SpriteKind.raft, function (sprite6) {
     CountRafts += -1
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.raft, function (sprite10, otherSprite2) {
-    info.changeScoreBy(5)
+    info.changeScoreBy(25)
     otherSprite2.destroy()
     rescue()
 })
+blockMenu.onMenuOptionSelected(function (option, index) {
+    console.logValue("Selected Option:", blockMenu.selectedMenuOption())
+    if (blockMenu.selectedMenuOption() == "Karte 1") {
+        tiles.setTilemap(tilemap`Level1`)
+    }
+    if (blockMenu.selectedMenuOption() == "Karte 2") {
+        tiles.setTilemap(tilemap`Karte2`)
+    }
+    if (blockMenu.selectedMenuOption() == "Einfach") {
+        Difficulty = blockMenu.selectedMenuIndex()
+    }
+    if (blockMenu.selectedMenuOption() == "Schwer") {
+        Difficulty = blockMenu.selectedMenuIndex()
+    }
+    console.logValue("Selected Option:", blockMenu.selectedMenuOption())
+    blockMenu.closeMenu()
+})
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (GameInitDone == 1) {
-        if (controller.A.isPressed()) {
-            game.showLongText("Ships: " + ("" + CountShips) + " Rafts: " + ("" + CountRafts) + " Swimmers: " + ("" + CountSwimmers) + " Burners: " + ("" + CountBurningShips) + " Treasure: " + ("" + CountTressure) + " Time:" + ("" + Math.round(game.runtime() / 1000)) + " Fuel :" + ("" + statusbar.value), DialogLayout.Bottom)
+        if (Difficulty == 0) {
+            B_Diff0()
         }
-        if (finderOn == 0) {
-            finderOn = 1
-            finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
-            finder2.setFlag(SpriteFlag.GhostThroughWalls, true)
-            finder2.setFlag(SpriteFlag.GhostThroughSprites, true)
-            finder2.setPosition(Cruiser.x, Cruiser.y)
-            finder2.setStayInScreen(true)
-            if (CountBurningShips >= 1) {
-                finder2.follow(BurnShip, 300)
-            } else if (Math.percentChance(50) && CountSwimmers > 0) {
-                finder2.follow(swimmer1, 300)
-            } else if (CountRafts > 0) {
-                finder2.follow(RAFT1, 300)
-            } else {
-                finderOn = 0
-                finder2.destroy()
-            }
-        } else {
-            finderOn = 0
-            finder2.destroy()
+        if (Difficulty == 1) {
+            B_Diff1()
         }
     }
 })
@@ -680,38 +761,29 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.burningShip, function (sprit
         otherSprite5.setFlag(SpriteFlag.GhostThroughSprites, false)
     }
 })
-blockMenu.onMenuOptionSelected(function (option, index5) {
-    if (index5 == 0) {
-        tiles.setTilemap(tilemap`Level1`)
-        blockMenu.closeMenu()
-        initGame()
-    }
-    if (index5 == 1) {
-        tiles.setTilemap(tilemap`Karte2`)
-        blockMenu.closeMenu()
-        initGame()
-    }
-})
 scene.onHitWall(SpriteKind.burningShip, function (sprite8, location6) {
     RandNewSpeed(sprite8, 1, 3)
 })
 let Schiff1: Sprite = null
 let SelectSHip = 0
-let RAFT1: Sprite = null
-let swimmer1: Sprite = null
-let CountRafts = 0
 let CountShips = 0
 let RandNewSpeedY = 0
 let RandNewSpeedX = 0
 let RandNewSpeddMax = 0
 let oldSpeedX = 0
-let CountSwimmers = 0
-let CountBurningShips = 0
-let BurnShip: Sprite = null
+let PosBar: StatusBarSprite = null
 let HitWithWater = 0
 let beep = 0
 let chopper2: Sprite = null
 let hospital2: Sprite = null
+let RAFT1: Sprite = null
+let swimmer1: Sprite = null
+let CalcPositionReturn = ""
+let BurnShip: Sprite = null
+let CountRafts = 0
+let CountSwimmers = 0
+let CountBurningShips = 0
+let PosBarHaverist: StatusBarSprite = null
 let Cruiser: Sprite = null
 let Water: Sprite = null
 let WaterX = 0
@@ -724,15 +796,22 @@ let lastTreasureScore = 0
 let finder2: Sprite = null
 let finderOn = 0
 let maxCruiserSpeed = 0
+let Difficulty = 0
 let GameInitDone = 0
 blockMenu.setControlsEnabled(false)
 GameInitDone = 0
 music.setVolume(80)
 game.splash("Wir sind Seenotretter", "      jetzt spenden!                 www.seenotretter.de    ")
 game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   v1.6")
-blockMenu.setColors(1, 15)
-blockMenu.showMenu(["Karte 1", "Karte 2"], MenuStyle.List, MenuLocation.FullScreen)
-blockMenu.setControlsEnabled(true)
+SetDifficulty()
+pauseUntil(() => !(blockMenu.isMenuOpen()))
+console.log("wait 1 over")
+SelectMap()
+pauseUntil(() => !(blockMenu.isMenuOpen()))
+console.log("wait 2 over")
+initGame()
+console.log("init done")
+console.logValue("diff", Difficulty)
 game.onUpdateInterval(1000, function () {
     if (GameInitDone == 1) {
         if (CountRafts < 3) {
@@ -811,4 +890,9 @@ forever(function () {
 })
 game.onUpdateInterval(30000, function () {
     CreateTressure()
+})
+game.onUpdateInterval(200, function () {
+    if (Difficulty == 1) {
+        UpdatePosBar()
+    }
 })
