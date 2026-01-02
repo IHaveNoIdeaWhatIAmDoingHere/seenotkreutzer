@@ -14,8 +14,13 @@ namespace StatusBarKind {
     export const Fuel = StatusBarKind.create()
     export const Pos = StatusBarKind.create()
 }
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile0`, function (sprite, location) {
+    if (Difficulty == 1) {
+        TeamHungerBar.value = TeamHungerBar.max
+    }
+})
 controller.A.onEvent(ControllerButtonEvent.Released, function () {
-    if (maxCruiserSpeed != 0) {
+    if (maxCruiserSpeed >= 50) {
         maxCruiserSpeed = 100
     }
     if (finderOn == 0) {
@@ -70,7 +75,7 @@ scene.onHitWall(SpriteKind.swimmer, function (sprite2, location2) {
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     if (GameInitDone == 1) {
-        if (maxCruiserSpeed != 0) {
+        if (maxCruiserSpeed >= 50) {
             maxCruiserSpeed = 250
         }
         if (CruiserOrientation == 0) {
@@ -119,7 +124,9 @@ function PlaceOnTopRandom (mySprite: Sprite) {
 }
 function B_Diff1 () {
     sprites.destroy(PosBarHaverist)
+    sprites.destroy(PosBarHaverist)
     if (finderOn == 0) {
+        music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
         finderOn = 1
         if (Difficulty == 1) {
             PosBarHaverist = statusbars.create(0, 3, StatusBarKind.Pos)
@@ -130,13 +137,13 @@ function B_Diff1 () {
         finder2.destroy()
         if (CountBurningShips >= 1) {
             CalcPosition(BurnShip)
-            game.showLongText("Eine Rettungsinsel wurde bei Position " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Top)
+            game.showLongText("Eine Haverist wurde bei Position ca. " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Center)
         } else if (Math.percentChance(50) && CountSwimmers > 0) {
             CalcPosition(swimmer1)
-            game.showLongText("Eine im Wasser treibende Person wurde bei Position " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Top)
+            game.showLongText("Eine im Wasser treibende Person wurde bei Position ca. " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Center)
         } else if (CountRafts > 0) {
             CalcPosition(RAFT1)
-            game.showLongText("Eine Rettungsinsel wurde bei Position " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Top)
+            game.showLongText("Eine Rettungsinsel wurde bei Position ca. " + CalcPositionReturn + " gesichtet - überprüfe was da los ist! ", DialogLayout.Center)
         } else {
             finderOn = 0
             sprites.destroy(PosBarHaverist)
@@ -152,10 +159,9 @@ statusbars.onZero(StatusBarKind.Fuel, function (status) {
     game.over(false, effects.dissolve)
 })
 function SetDifficulty () {
-    console.log("set Diff")
-    blockMenu.setColors(2, 1)
+    blockMenu.setColors(4, 15)
     blockMenu.setControlsEnabled(true)
-    blockMenu.showMenu(["Einfach", "Schwer"], MenuStyle.List, MenuLocation.FullScreen)
+    blockMenu.showMenu(["Einfach", "Schwer"], MenuStyle.List, MenuLocation.TopHalf)
 }
 scene.onHitWall(SpriteKind.raft, function (sprite3, location3) {
     RandNewSpeed(sprite3, 3, 8)
@@ -294,6 +300,10 @@ function rescue () {
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.swimmer, function (sprite14, otherSprite6) {
     info.changeScoreBy(50)
+    if (Difficulty == 1) {
+        info.changeScoreBy(randint(0, 50))
+        TeamHungerBar.value += -1 * (randint(5, 15) / 1)
+    }
     otherSprite6.destroy()
     rescue()
 })
@@ -349,7 +359,11 @@ function play_sos (num: number) {
     }
 }
 function CalcPosition (mySprite: Sprite) {
-    CalcPositionReturn = "L: " + Math.round(5000 + -1 * mySprite.y) / 1 + " N - B:" + Math.round(5000 + mySprite.x) / 1 + " O"
+    if (mySprite == Cruiser) {
+        CalcPositionReturn = "L:" + Math.round(5000 + -1 * mySprite.y) / 1 + "°N - B:" + Math.round(5000 + mySprite.x) / 1 + "°O"
+    } else {
+        CalcPositionReturn = "L:" + Math.round(Math.round(5000 + -1 * mySprite.y) / 10) * 10 + "°N - B:" + Math.round(Math.round(5000 + 1 * mySprite.x) / 10) * 10 + "°O"
+    }
 }
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.ship, function (sprite15, otherSprite7) {
     HitWithWater += 1
@@ -403,6 +417,12 @@ if (Difficulty == 1) {
             PosBar = statusbars.create(0, 3, StatusBarKind.Pos)
             PosBar.positionDirection(CollisionDirection.Bottom)
             PosBar.setOffsetPadding(-80, 5)
+            TeamHungerBar = statusbars.create(5, 60, StatusBarKind.Energy)
+            TeamHungerBar.setColor(6, 5)
+            TeamHungerBar.setBarBorder(1, 13)
+            TeamHungerBar.positionDirection(CollisionDirection.Left)
+            TeamHungerBar.max = 500
+            TeamHungerBar.value = TeamHungerBar.max
         }
         GameInitDone = 1
     }
@@ -416,6 +436,9 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.treassure, function (sprite11, o
     info.changeScoreBy(333)
     CountTressure += -1
     lastTreasureScore = info.score()
+    if (Difficulty == 1) {
+        TeamHungerBar.value += -1 * (randint(5, 50) / 1)
+    }
 })
 function Create_Burning_Ship () {
     BurnShip = sprites.create(img`
@@ -441,6 +464,9 @@ function Create_Burning_Ship () {
     CountBurningShips += 1
     RandNewSpeed(BurnShip, 1, 3)
     BurnShip.startEffect(effects.fire)
+    if (Difficulty == 1) {
+        B_Diff1()
+    }
 }
 sprites.onDestroyed(SpriteKind.swimmer, function (sprite4) {
     CountSwimmers += -1
@@ -483,6 +509,9 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite16, otherS
     if (info.life() < 2) {
         game.showLongText("dein Kreuzer ist schwer Beschädigt. Rette alle Beteiligten & fahre zum gelben Hafenkran zum reparieren.", DialogLayout.Center)
     }
+    if (Difficulty == 1) {
+        TeamHungerBar.value += -1 * (randint(15, 25) / 1)
+    }
     info.changeScoreBy(-100)
     otherSprite8.setFlag(SpriteFlag.GhostThroughSprites, true)
     scene.cameraShake(4, 2000)
@@ -496,11 +525,14 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite16, otherS
     pause(5000)
     otherSprite8.setFlag(SpriteFlag.GhostThroughSprites, false)
 })
+statusbars.onStatusReached(StatusBarKind.Energy, statusbars.StatusComparison.EQ, statusbars.ComparisonType.Percentage, 100, function (status) {
+    TeamHungerBar.setColor(6, 5)
+    maxCruiserSpeed = 100
+})
 function SelectMap () {
-    console.log("setMap")
-    blockMenu.setColors(1, 15)
+    blockMenu.setColors(9, 15)
     blockMenu.setControlsEnabled(true)
-    blockMenu.showMenu(["Karte 1", "Karte 2"], MenuStyle.List, MenuLocation.FullScreen)
+    blockMenu.showMenu(["Karte 1", "Karte 2"], MenuStyle.List, MenuLocation.BottomHalf)
 }
 sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite12, otherSprite4) {
     chopper2.say("Hochziehen!", 1200)
@@ -519,12 +551,8 @@ sprites.onOverlap(SpriteKind.chopper, SpriteKind.Player, function (sprite12, oth
 function UpdatePosBar () {
     CalcPosition(Cruiser)
     PosBar.setLabel(CalcPositionReturn)
-    console.logValue("CalcPosREaturn", CalcPositionReturn)
 }
 function B_Diff0 () {
-    if (controller.A.isPressed()) {
-        game.showLongText("Ships: " + ("" + CountShips) + " Rafts: " + ("" + CountRafts) + " Swimmers: " + ("" + CountSwimmers) + " Burners: " + ("" + CountBurningShips) + " Treasure: " + ("" + CountTressure) + " Time:" + ("" + Math.round(game.runtime() / 1000)) + " Fuel :" + ("" + statusbar.value) + "Position X:" + Cruiser.x + "Position Y:" + Cruiser.y + "", DialogLayout.Full)
-    }
     if (finderOn == 0) {
         finderOn = 1
         finder2 = sprites.create(assets.image`finder0`, SpriteKind.finder)
@@ -547,6 +575,11 @@ function B_Diff0 () {
         finder2.destroy()
     }
 }
+statusbars.onZero(StatusBarKind.Energy, function (status) {
+    game.showLongText("Deine Mannschaft ist hungrig und Müde! Es geht alles nur noch langsam! ", DialogLayout.Bottom)
+    TeamHungerBar.setColor(6, 2)
+    maxCruiserSpeed = 30
+})
 sprites.onOverlap(SpriteKind.ship, SpriteKind.ship, function (sprite9, otherSprite) {
     music.bigCrash.play()
     scene.cameraShake(4, 1000)
@@ -567,8 +600,18 @@ sprites.onOverlap(SpriteKind.ship, SpriteKind.ship, function (sprite9, otherSpri
 sprites.onDestroyed(SpriteKind.raft, function (sprite6) {
     CountRafts += -1
 })
+statusbars.onStatusReached(StatusBarKind.Energy, statusbars.StatusComparison.LTE, statusbars.ComparisonType.Percentage, 25, function (status) {
+    if (GameInitDone == 1) {
+        game.showLongText("deine Mannschaft hat Hunger! Fahre zum Liegeplatz am Hafen zum Proviant Bunkern! ", DialogLayout.Bottom)
+        TeamHungerBar.setColor(6, 4)
+    }
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.raft, function (sprite10, otherSprite2) {
     info.changeScoreBy(25)
+    if (Difficulty == 1) {
+        info.changeScoreBy(randint(0, 25))
+        TeamHungerBar.value += -1 * (randint(1, 10) / 1)
+    }
     otherSprite2.destroy()
     rescue()
 })
@@ -586,16 +629,24 @@ blockMenu.onMenuOptionSelected(function (option, index) {
     if (blockMenu.selectedMenuOption() == "Schwer") {
         Difficulty = blockMenu.selectedMenuIndex()
     }
-    console.logValue("Selected Option:", blockMenu.selectedMenuOption())
     blockMenu.closeMenu()
 })
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (GameInitDone == 1) {
+    if (controller.A.isPressed()) {
         if (Difficulty == 0) {
-            B_Diff0()
+            game.showLongText("Ships: " + ("" + CountShips) + " Rafts: " + ("" + CountRafts) + " Swimmers: " + ("" + CountSwimmers) + " Burners: " + ("" + CountBurningShips) + " Treasure: " + ("" + CountTressure) + " Time:" + ("" + Math.round(game.runtime() / 1000)) + " Fuel :" + ("" + statusbar.value), DialogLayout.Full)
         }
         if (Difficulty == 1) {
-            B_Diff1()
+            game.showLongText("Ships: " + ("" + CountShips) + " Rafts: " + ("" + CountRafts) + " Swimmers: " + ("" + CountSwimmers) + " Burners: " + ("" + CountBurningShips) + " Treasure: " + ("" + CountTressure) + " Time:" + ("" + Math.round(game.runtime() / 1000)) + " Fuel :" + ("" + statusbar.value) + " Hunger :" + ("" + TeamHungerBar.value), DialogLayout.Full)
+        }
+    } else {
+        if (GameInitDone == 1) {
+            if (Difficulty == 0) {
+                B_Diff0()
+            }
+            if (Difficulty == 1) {
+                B_Diff1()
+            }
         }
     }
 })
@@ -755,6 +806,12 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.burningShip, function (sprit
         CountShips += 1
         HitWithWater = 0
         info.changeScoreBy(125)
+        if (Difficulty == 1) {
+            info.changeScoreBy(randint(0, 100))
+            TeamHungerBar.value += -1 * (randint(10, 20) / 1)
+            pause(3000)
+            B_Diff1()
+        }
         otherSprite5.say("Danke! Gelöscht!", 1000)
         pause(5000)
         RandNewSpeed(otherSprite5, 8, 20)
@@ -796,22 +853,19 @@ let lastTreasureScore = 0
 let finder2: Sprite = null
 let finderOn = 0
 let maxCruiserSpeed = 0
+let TeamHungerBar: StatusBarSprite = null
 let Difficulty = 0
 let GameInitDone = 0
 blockMenu.setControlsEnabled(false)
 GameInitDone = 0
 music.setVolume(80)
 game.splash("Wir sind Seenotretter", "      jetzt spenden!                 www.seenotretter.de    ")
-game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   v1.6")
+game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   v1.7")
 SetDifficulty()
 pauseUntil(() => !(blockMenu.isMenuOpen()))
-console.log("wait 1 over")
 SelectMap()
 pauseUntil(() => !(blockMenu.isMenuOpen()))
-console.log("wait 2 over")
 initGame()
-console.log("init done")
-console.logValue("diff", Difficulty)
 game.onUpdateInterval(1000, function () {
     if (GameInitDone == 1) {
         if (CountRafts < 3) {
@@ -894,5 +948,6 @@ game.onUpdateInterval(30000, function () {
 game.onUpdateInterval(200, function () {
     if (Difficulty == 1) {
         UpdatePosBar()
+        TeamHungerBar.value += -1 * (randint(1, 10) / 10)
     }
 })
