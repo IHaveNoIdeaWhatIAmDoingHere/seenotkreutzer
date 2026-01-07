@@ -49,6 +49,16 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "Repair"
     },
+    "image9": {
+        "data": "hwQGAAYAAAAAAwAAUFQEAENFBQBQVDQAQEUFAAAwAAA=",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "Wurfleine"
+    },
+    "image6": {
+        "data": "hwQFAAUAAAAABQAAICQAAEVFBQAgJAAAAAUAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "Flare"
+    },
     "anim1": {
         "namespace": "myAnimations",
         "id": "anim1",

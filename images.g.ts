@@ -190,6 +190,23 @@ f f f . 5 5 5 .
 f d f . . 5 5 5 
 . d f . . . 5 5 
 `;
+            case "image9":
+            case "Wurfleine":return img`
+. . 3 . . . 
+. 5 4 5 4 . 
+3 4 5 4 5 . 
+. 5 4 5 4 3 
+. 4 5 4 5 . 
+. . . 3 . . 
+`;
+            case "image6":
+            case "Flare":return img`
+. . 5 . . 
+. 2 4 2 . 
+5 4 5 4 5 
+. 2 4 2 . 
+. . 5 . . 
+`;
         }
         return null;
     })
