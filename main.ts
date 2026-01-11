@@ -14,6 +14,7 @@ namespace SpriteKind {
 namespace StatusBarKind {
     export const Fuel = StatusBarKind.create()
     export const Pos = StatusBarKind.create()
+    export const LineStrengh = StatusBarKind.create()
 }
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile0`, function (sprite, location) {
     if (Difficulty == 1) {
@@ -65,6 +66,7 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile1`, function (sprite, l
         spriteutils.moveToAtSpeed(HaverieShip, spriteutils.pos(Cruiser.x, Cruiser.y), 10, false)
         HaverieShip.startEffect(effects.hearts, 500)
         HaverieShipInTow = 0
+        LineBar.value = 0
         info.changeScoreBy(300)
         timer.after(5000, function () {
             HaverieShipInTow = 0
@@ -188,13 +190,15 @@ statusbars.onZero(StatusBarKind.Fuel, function (status) {
 spriteutils.createRenderable(1, function (screen2) {
     if (GameInitDone == 1) {
         A_OS_Coord_Cruiser = [(scene.cameraProperty(CameraProperty.X) - Cruiser.x - 80) * -1, (scene.cameraProperty(CameraProperty.Y) - Cruiser.y - 60) * -1]
-        if (HaverieShipInTow > 0) {
-            A_OS_Coord_Haverist = [(scene.cameraProperty(CameraProperty.X) - HaverieShip.x - 80) * -1, (scene.cameraProperty(CameraProperty.Y) - HaverieShip.y - 60) * -1]
-            screen2.drawLine(A_OS_Coord_Cruiser[0], A_OS_Coord_Cruiser[1], A_OS_Coord_Haverist[0], A_OS_Coord_Haverist[1], 5)
-        }
-        if (WurfleineFlying == 1) {
-            A_OS_Coord_Wurfleine = [(scene.cameraProperty(CameraProperty.X) - Wurfleine.x - 80) * -1, (scene.cameraProperty(CameraProperty.Y) - Wurfleine.y - 60) * -1]
-            screen2.drawLine(A_OS_Coord_Cruiser[0], A_OS_Coord_Cruiser[1], A_OS_Coord_Wurfleine[0], A_OS_Coord_Wurfleine[1], 5)
+        if (Watermode == 0) {
+            if (HaverieShipInTow != 0) {
+                A_OS_Coord_Haverist = [(scene.cameraProperty(CameraProperty.X) - HaverieShip.x - 80) * -1, (scene.cameraProperty(CameraProperty.Y) - HaverieShip.y - 60) * -1]
+                screen2.drawLine(A_OS_Coord_Cruiser[0], A_OS_Coord_Cruiser[1], A_OS_Coord_Haverist[0], A_OS_Coord_Haverist[1], 5)
+            }
+            if (WurfleineFlying == 1) {
+                A_OS_Coord_Wurfleine = [(scene.cameraProperty(CameraProperty.X) - Wurfleine.x - 80) * -1, (scene.cameraProperty(CameraProperty.Y) - Wurfleine.y - 60) * -1]
+                screen2.drawLine(A_OS_Coord_Cruiser[0], A_OS_Coord_Cruiser[1], A_OS_Coord_Wurfleine[0], A_OS_Coord_Wurfleine[1], 5)
+            }
         }
     }
 })
@@ -203,6 +207,9 @@ function SetDifficulty () {
     blockMenu.setControlsEnabled(true)
     blockMenu.showMenu(["Einfach", "Schwer"], MenuStyle.List, MenuLocation.TopHalf)
 }
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Player, function (sprite, otherSprite) {
+	
+})
 function Create_Hverie_Ship () {
     HaverieShip = sprites.create(img`
         . . . . . . . . . . . . . . . . 
@@ -489,7 +496,7 @@ if (Difficulty == 1) {
             PosBar.positionDirection(CollisionDirection.Bottom)
             PosBar.setOffsetPadding(-80, 2)
             TeamHungerBar = statusbars.create(5, 60, StatusBarKind.Energy)
-            TeamHungerBar.setColor(6, 5)
+            TeamHungerBar.setColor(6, 4)
             TeamHungerBar.setBarBorder(1, 13)
             TeamHungerBar.positionDirection(CollisionDirection.Left)
             TeamHungerBar.max = 500
@@ -597,7 +604,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.ship, function (sprite16, otherS
     otherSprite8.setFlag(SpriteFlag.GhostThroughSprites, false)
 })
 statusbars.onStatusReached(StatusBarKind.Energy, statusbars.StatusComparison.EQ, statusbars.ComparisonType.Percentage, 100, function (status) {
-    TeamHungerBar.setColor(6, 5)
+    TeamHungerBar.setColor(6, 4)
     maxCruiserSpeed = 100
 })
 function SelectMap () {
@@ -654,8 +661,8 @@ statusbars.onZero(StatusBarKind.Energy, function (status) {
     maxCruiserSpeed = 30
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.HaverieShip, function (sprite, otherSprite) {
-    if (Watermode == 0) {
-        sprites.destroy(sprite)
+    if (Watermode == 0 && WurfleineFlying == 1) {
+        sprites.destroy(sprite, effects.hearts, 5000)
         otherSprite.sayText("Gefangen!", 500, true)
         HaverieShipInTow = 1
         Cruiser.sayText("wir haben Ihn, auf zum Hafen!", 2000, true)
@@ -718,8 +725,16 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
         if (Watermode == 1) {
             Watermode = 0
             game.showLongText("Auf Wurfleine umgestellt", DialogLayout.Bottom)
+            LineBar = statusbars.create(5, 60, StatusBarKind.LineStrengh)
+            LineBar.positionDirection(CollisionDirection.Right)
+            LineBar.setOffsetPadding(0, 2)
+            LineBar.setBarBorder(1, 13)
+            LineBar.setColor(2, 5)
+            LineBar.max = 80
+            LineBar.value = 0
         } else {
             Watermode = 1
+            sprites.destroy(LineBar)
             game.showLongText("Auf Wasserwerfer umgestellt", DialogLayout.Bottom)
         }
     } else {
@@ -935,6 +950,7 @@ let WaterX = 0
 let WaterY = 0
 let CruiserOrientation = 0
 let statusbar: StatusBarSprite = null
+let LineBar: StatusBarSprite = null
 let Cruiser: Sprite = null
 let HaverieShip: Sprite = null
 let CountHaverieShip = 0
@@ -1009,7 +1025,7 @@ game.onUpdateInterval(1000, function () {
             } else if (Math.percentChance(50) && CountHaverieShip == 0) {
                 Create_Hverie_Ship()
             } else {
-                if (CountShips < 6) {
+                if (CountShips < 5) {
                     Schiff1 = sprites.create(img`
                         . . . . . . . . . . . . . . . . 
                         . . . . . 5 5 5 5 5 5 . . . . . 
@@ -1047,10 +1063,12 @@ forever(function () {
     }
     if (HaverieShipInTow == 1) {
         if (spriteutils.distanceBetween(Cruiser, HaverieShip) < 80 && spriteutils.distanceBetween(Cruiser, HaverieShip) > 20) {
-            spriteutils.moveToAtSpeed(HaverieShip, spriteutils.pos(Cruiser.x, Cruiser.y), 80)
+            spriteutils.moveToAtSpeed(HaverieShip, spriteutils.pos(Cruiser.x, Cruiser.y), 20)
+            LineBar.value = spriteutils.distanceBetween(Cruiser, HaverieShip)
         } else if (spriteutils.distanceBetween(Cruiser, HaverieShip) <= 20) {
             RandNewSpeed(HaverieShip, 1, 1)
         } else {
+            LineBar.value = 0
             HaverieShipInTow = 0
             music.play(music.melodyPlayable(music.smallCrash), music.PlaybackMode.InBackground)
             Cruiser.sayText("Wir haben Ihn verloren, Nochmal!", 500, true)
@@ -1064,9 +1082,6 @@ forever(function () {
 })
 game.onUpdateInterval(30000, function () {
     CreateTressure()
-})
-game.onUpdateInterval(3000, function () {
-	
 })
 game.onUpdateInterval(200, function () {
     if (Difficulty == 1) {
