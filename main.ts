@@ -968,7 +968,7 @@ blockMenu.setControlsEnabled(false)
 GameInitDone = 0
 music.setVolume(80)
 game.splash("Wir sind Seenotretter", "      jetzt spenden!                 www.seenotretter.de    ")
-game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   v1.7")
+game.splash("für Alfred, Ruth & Albert", "                                   von Papa                                   v1.8")
 SetDifficulty()
 pauseUntil(() => !(blockMenu.isMenuOpen()))
 SelectMap()
